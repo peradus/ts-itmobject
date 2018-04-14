@@ -1,11 +1,14 @@
 ///<reference path='./itmobject.ts'/>
+interface InstanceMap {
+   [name:string]:ItmObject;
+}
 
 class ItmObjectInstances {
 
-   private _instances:ItmObject[];
+   private _instances:InstanceMap={};
    
    constructor()
    {
-      this._instances=[];
+      this._instances={};
    }
 }
