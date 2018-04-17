@@ -101,8 +101,19 @@ var ItmObjectProperties = /** @class */ (function () {
 ///<reference path='./itmobject.ts'/>
 var ItmObjectInstances = /** @class */ (function () {
     function ItmObjectInstances() {
-        this._instances = [];
+        this._instances = {};
+        this._instances = {};
     }
+    ItmObjectInstances.prototype.set = function (itmobject) {
+        this._instances[itmobject.getName()] = itmobject;
+        return itmobject;
+    };
+    ItmObjectInstances.prototype.get = function (name) {
+        return (this._instances[name]);
+    };
+    ItmObjectInstances.prototype.exist = function (name) {
+        return (name in this._instances);
+    };
     return ItmObjectInstances;
 }());
 ///<reference path='./itmobjectmethods.ts'/>
@@ -117,8 +128,18 @@ var ItmObject = /** @class */ (function () {
         this._methods = new ItmObjectMethods();
         this._properties = new ItmObjectProperties();
         this._instances = new ItmObjectInstances();
-        this._properties.add(new ItmObjectProperty('className').setValue('itmobjectclass'));
+        this._properties.set(new ItmObjectProperty('className').setValue('itmobjectclass'));
     }
+    ItmObject.prototype.getName = function () {
+        return this._name;
+    };
+    ItmObject.prototype.getInstanceName = function (instance) {
+        if (instance == "")
+            return this.getName();
+        if (instance.slice(-1) != "/")
+            instance = instance + "/";
+        return "";
+    };
     return ItmObject;
 }());
 ///<reference path='./class/itmobject.ts'/>
