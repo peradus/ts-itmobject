@@ -1,8 +1,9 @@
 ///<reference path='./itmobjectmethods.ts'/>
 ///<reference path='./itmobjectproperties.ts'/>
 ///<reference path='./itmobjectinstances.ts'/>
+class ItmObjectBase {}
 
-class ItmObject {
+class ItmObject extends ItmObjectBase {
    
    private _name:string;
    private _classname:string;
@@ -12,8 +13,10 @@ class ItmObject {
    private _methods:ItmObjectMethods;
    private _properties:ItmObjectProperties;
 
-   constructor(name:string)
+   constructor (name:string)
    {
+         super();
+
          this._name=name;
          this._classname="itmobject";
          this._displayname=this._name;
@@ -28,9 +31,9 @@ class ItmObject {
    }
 
    // GET ITMOBJECT BASED ON INSTANCENAME
-   public getItmObject(instance:string):any
+   public getItmObject(instance:string):ItmObjectBase | undefined
    {
-      var obj:ItmObject;
+      var obj:ItmObjectBase | undefined;
       
       if (instance == "") {
          // do nothing
@@ -44,7 +47,8 @@ class ItmObject {
          while (instanceArray.length > 0) {
 
          }
-
+         // niet gevonden is undefined
+         obj=undefined;
       }
       return obj;
    }

@@ -12,7 +12,7 @@ class ItmObjectProperties {
       this._properties={};
    }
 
-   public add(property:ItmObjectProperty):ItmObjectProperty {
+   public set(property:ItmObjectProperty):ItmObjectProperty {
       this._properties[property.name()]=property;
       return property;
    }
