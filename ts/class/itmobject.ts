@@ -1,9 +1,8 @@
 ///<reference path='./itmobjectmethods.ts'/>
 ///<reference path='./itmobjectproperties.ts'/>
 ///<reference path='./itmobjectinstances.ts'/>
-class ItmObjectBase {}
 
-class ItmObject extends ItmObjectBase {
+class ItmObject  {
    
    private _name:string;
    private _classname:string;
@@ -15,8 +14,6 @@ class ItmObject extends ItmObjectBase {
 
    constructor (name:string)
    {
-         super();
-
          this._name=name;
          this._classname="itmobject";
          this._displayname=this._name;
@@ -30,27 +27,36 @@ class ItmObject extends ItmObjectBase {
          );
    }
 
-   // GET ITMOBJECT BASED ON INSTANCENAME
-   public getItmObject(instance:string):ItmObjectBase | undefined
+   public instances():ItmObjectInstances
    {
-      var obj:ItmObjectBase | undefined;
-      
+      return this._instances;
+   }
+   
+   // GET ITMOBJECT BASED ON INSTANCENAME
+   public getItmObject(instance:string):ItmObject | undefined
+   {
       if (instance == "") {
          // do nothing
-         obj=this;
+         return this;
       }
       else {
-         // pass to instance method
-         // split instance into parts a/b/c/d == ['a','b','c','d']
-         var instanceArray:string[] = instance.split('/');
-         
-         while (instanceArray.length > 0) {
-
+         let instanceArray:string[] = instance.split('/');
+         let findInstance:string | undefined;
+         findInstance=instanceArray.shift();
+         if (findInstance) 
+         {
+            if (this._instances.exist(findInstance))
+            {
+               let obj:ItmObject=this._instances.get(findInstance);
+               if (obj) 
+               {
+                  let nextInstance:string=instanceArray.join('/');
+                  return obj.getItmObject(nextInstance);
+               }
+            }
          }
-         // niet gevonden is undefined
-         obj=undefined;
       }
-      return obj;
+      return undefined;
    }
 
    // LOCAL ITMOBJECT METHODS
@@ -62,25 +68,14 @@ class ItmObject extends ItmObjectBase {
    // INSTANCE REFERENCED METHODS
    public getInstanceName(instance:string):string
    {
-      // if instance='' getName local method
-      if (instance=="") return this.getName();
-      
-      // pass to instance method
-      // split instance into parts a/b/c/d == ['a','b','c','d']
-      var instanceArray:string[] = instance.split('/');
-
-      // get direct local instance from instance parts, 'a'
-      var localInstance:string = localInstance=instanceArray.shift() || '';
-
-      // check if local instance exist
-      if (this._instances.exist(localInstance)) {
-         // get instance as itmobject
-         var obj:ItmObject=this._instances.get(localInstance);
-         // recreate subInstanceName, ['b','c',d'] == 'b/c/d'
-         var subInstanceName=instanceArray.join('/');
-         return obj.getInstanceName(subInstanceName);
+      let obj:ItmObject | undefined;
+      obj=this.getItmObject(instance);
+      if (obj) 
+      {
+         return obj.getName();
       }
-
-      return "";
+      else {
+         return "";
+      }
    }
 }
