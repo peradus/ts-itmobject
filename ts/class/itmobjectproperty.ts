@@ -4,10 +4,10 @@ class ItmObjectProperty {
    private _value:string;
    private _validator:string;
 
-   constructor(name:string)
+   constructor(name:string, value:string)
    {
       this._name=name;
-      this._value="";
+      this._value=value;
       this._validator="";
    }
 
@@ -42,14 +42,14 @@ class ItmObjectProperty {
     * @param value 
     * returns true/false upon succesful set
     */
-   public setValue(value:string):ItmObjectProperty {
+   public setValue(value:string):string {
       if (this.validate(value)) {
          this._value=value; // set value
       }         
-      return this;
+      return this._value;
    }
 
-   public getValue(value:string):string {
+   public getValue():string {
       return this._value;
    }  
 

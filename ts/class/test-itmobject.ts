@@ -6,10 +6,5 @@ class TestItmObject extends ItmObject {
          super(name);
    }
 
-   // LOCAL ITMOBJECT METHODS
-   public getName():string 
-   {
-      return "DIT IS EEN TEST";
-   }
    
 }

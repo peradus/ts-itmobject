@@ -17,12 +17,16 @@ class ItmObjectInstances {
       return itmobject;
    }
 
-   public get(name:string):ItmObject {
-      return (this._instances[name]);
+   public get(name:string | undefined):ItmObject | undefined {
+      if (name==undefined) return undefined
+      else 
+         return (this._instances[name]);
    }
 
-   public exist(name:string):boolean {
-      return (name in this._instances);
+   public exist(name:string | undefined):boolean {
+      if (name==undefined) return false
+      else 
+         return (name in this._instances);
    }
    
 }

@@ -4,78 +4,113 @@
 
 class ItmObject  {
    
-   private _name:string;
-   private _classname:string;
-   private _displayname:string;
-   private _description:string;
    private _instances:ItmObjectInstances;
    private _methods:ItmObjectMethods;
    private _properties:ItmObjectProperties;
 
    constructor (name:string)
    {
-         this._name=name;
-         this._classname="itmobject";
-         this._displayname=this._name;
-         this._description="";
          this._methods=new ItmObjectMethods();
          this._properties=new ItmObjectProperties();
          this._instances=new ItmObjectInstances();
 
-         this._properties.set(
-            new ItmObjectProperty('className').setValue('itmobjectclass')
-         );
-   }
+         this._properties.set( new ItmObjectProperty('_name',name) );
+         this._properties.set( new ItmObjectProperty('_className','itmobject') );
+         this._properties.set( new ItmObjectProperty('_displayname',name) );
+         this._properties.set( new ItmObjectProperty('_description','') );
+         this._properties.set( new ItmObjectProperty('_status','') );
+      }
 
    public instances():ItmObjectInstances
    {
       return this._instances;
    }
    
-   // GET ITMOBJECT BASED ON INSTANCENAME
-   public getItmObject(instance:string):ItmObject | undefined
+   // LOCAL ITMOBJECT METHODS
+   public getPropertyValue(property:string):string 
    {
-      if (instance == "") {
-         // return this itmobject
-         return this;
-      }
-      else {
-         let instanceArray:string[] = instance.split('/');
-         let findInstance:string | undefined;
-         findInstance=instanceArray.shift();
-         if (findInstance) 
-         {
-            if (this._instances.exist(findInstance))
-            {
-               let obj:ItmObject=this._instances.get(findInstance);
-               if (obj) 
-               {
-                  let nextInstance:string=instanceArray.join('/');
-                  return obj.getItmObject(nextInstance);
-               }
-            }
-         }
-      }
-      return undefined;
+      return this._properties.getValue(property);
    }
 
-   // LOCAL ITMOBJECT METHODS
-   public getName():string 
+   public setPropertyValue(property:string, value:string):string 
    {
-      return this._name;
+      return this._properties.setValue(property, value);
+   }
+
+   public getName():string
+   {
+      return this.getPropertyValue('_name');
+
+   }
+
+   public getClassName():string
+   {
+      return this.getPropertyValue('_classname');
+   }
+   
+   public getDisplayName():string
+   {
+      return this.getPropertyValue('_displayname');
+   }
+   
+   public getStatus():string
+   {
+      return this.getPropertyValue('_status');
    }
 
    // INSTANCE REFERENCED METHODS
+   
+   public getInstancePropertyValue(instance:string, property:string):string
+   {
+      if (instance=="") return this.getPropertyValue(property);
+      
+      let instanceArray:string[] = instance.split('/');
+      let findInstance:string | undefined=instanceArray.shift();
+
+      let obj:ItmObject | undefined;
+      obj=this._instances.get(findInstance);
+      if (obj) 
+      {  let nextInstance:string = instanceArray.join('/');
+         return obj.getInstancePropertyValue(nextInstance, property);
+      }
+
+      return "";
+   }
+
+   public setInstancePropertyValue(instance:string, property:string, value:string):string
+   {
+      if (instance=="") return this.setPropertyValue(property, value);
+      
+      let instanceArray:string[] = instance.split('/');
+      let findInstance:string | undefined=instanceArray.shift();
+
+      let obj:ItmObject | undefined;
+      obj=this._instances.get(findInstance);
+      if (obj) 
+      {  let nextInstance:string = instanceArray.join('/');
+         return obj.setInstancePropertyValue(nextInstance, property, value);
+      }
+
+      return "";
+   }
+
    public getInstanceName(instance:string):string
    {
-      let obj:ItmObject | undefined;
-      obj=this.getItmObject(instance);
-      if (obj) 
-      {
-         return obj.getName();
-      }
-      else {
-         return "";
-      }
+      return this.getInstancePropertyValue(instance,'_name');
+   }
+   
+   public getInstanceClassName(instance:string):string
+   {
+      return this.getInstancePropertyValue(instance,'_classname');
+   }
+   
+   public getInstanceDisplayName(instance:string):string
+   {
+      return this.getInstancePropertyValue(instance,'_displayname');
+   }
+   
+   public getInstanceStatus(instance:string):string
+   {
+      return this.getInstancePropertyValue(instance,'_status');
    }
 }
