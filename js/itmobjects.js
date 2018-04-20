@@ -1,4 +1,14 @@
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var ItmObjectMethod = /** @class */ (function () {
     function ItmObjectMethod(name) {
         this._name = name;
@@ -92,7 +102,7 @@ var ItmObjectProperties = /** @class */ (function () {
         this._properties = {};
         this._properties = {};
     }
-    ItmObjectProperties.prototype.add = function (property) {
+    ItmObjectProperties.prototype.set = function (property) {
         this._properties[property.name()] = property;
         return property;
     };
@@ -130,18 +140,60 @@ var ItmObject = /** @class */ (function () {
         this._instances = new ItmObjectInstances();
         this._properties.set(new ItmObjectProperty('className').setValue('itmobjectclass'));
     }
+    ItmObject.prototype.instances = function () {
+        return this._instances;
+    };
+    // GET ITMOBJECT BASED ON INSTANCENAME
+    ItmObject.prototype.getItmObject = function (instance) {
+        if (instance == "") {
+            // return this itmobject
+            return this;
+        }
+        else {
+            var instanceArray = instance.split('/');
+            var findInstance = void 0;
+            findInstance = instanceArray.shift();
+            if (findInstance) {
+                if (this._instances.exist(findInstance)) {
+                    var obj_1 = this._instances.get(findInstance);
+                    if (obj_1) {
+                        var nextInstance = instanceArray.join('/');
+                        return obj_1.getItmObject(nextInstance);
+                    }
+                }
+            }
+        }
+        return undefined;
+    };
+    // LOCAL ITMOBJECT METHODS
     ItmObject.prototype.getName = function () {
         return this._name;
     };
+    // INSTANCE REFERENCED METHODS
     ItmObject.prototype.getInstanceName = function (instance) {
-        if (instance == "")
-            return this.getName();
-        if (instance.slice(-1) != "/")
-            instance = instance + "/";
-        return "";
+        var obj;
+        obj = this.getItmObject(instance);
+        if (obj) {
+            return obj.getName();
+        }
+        else {
+            return "";
+        }
     };
     return ItmObject;
 }());
 ///<reference path='./class/itmobject.ts'/>
 var obj = new ItmObject('test');
+///<reference path='./itmobject.ts'/>
+var TestItmObject = /** @class */ (function (_super) {
+    __extends(TestItmObject, _super);
+    function TestItmObject(name) {
+        return _super.call(this, name) || this;
+    }
+    // LOCAL ITMOBJECT METHODS
+    TestItmObject.prototype.getName = function () {
+        return "DIT IS EEN TEST";
+    };
+    return TestItmObject;
+}(ItmObject));
 //# sourceMappingURL=itmobjects.js.map

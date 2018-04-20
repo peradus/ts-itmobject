@@ -36,7 +36,7 @@ class ItmObject  {
    public getItmObject(instance:string):ItmObject | undefined
    {
       if (instance == "") {
-         // do nothing
+         // return this itmobject
          return this;
       }
       else {
