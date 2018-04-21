@@ -13,7 +13,7 @@ class ItmObjectProperties {
    }
 
    public set(property:ItmObjectProperty):ItmObjectProperty {
-      this._properties[property.name()]=property;
+      this._properties[property.name]=property;
       return property;
    }
 
@@ -29,14 +29,14 @@ class ItmObjectProperties {
 
    public getValue(property:string):string {
       if (this.exist(property)) {
-         return this._properties[property].getValue();
+         return this._properties[property].data.value;
       }
       return "";
    }
 
    public setValue(property:string, value:string):string {
       if (this.exist(property)) {
-         return this._properties[property].setValue(value);
+         return this._properties[property].data.value=value;
       }
       else {
          this.set(new ItmObjectProperty(property,value));
@@ -44,4 +44,8 @@ class ItmObjectProperties {
       }
    }
 
+   public toString():string
+   {
+      return Object.keys(this._properties).join(",");
+   }
 }

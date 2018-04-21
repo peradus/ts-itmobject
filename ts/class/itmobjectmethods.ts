@@ -12,8 +12,14 @@ class ItmObjectMethods {
       this._methods={};
    }
 
-   public add(method:ItmObjectMethod):ItmObjectMethod {
+   public add(method:ItmObjectMethod):ItmObjectMethod
+   {
       this._methods[method.name()]=method;
       return method;
+   }
+
+   public toString():string 
+   {
+      return Object.keys(this._methods).join(",");
    }
 }

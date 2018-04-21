@@ -28,5 +28,10 @@ class ItmObjectInstances {
       else 
          return (name in this._instances);
    }
+
+   public toString():string
+   {
+      return Object.keys(this._instances).join(",");
+   }
    
 }

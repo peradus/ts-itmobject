@@ -4,5 +4,5 @@
 let obj=new ItmObject('test');
 let testobj=new TestItmObject('test123');
 
-obj.instances().set(testobj);
+obj.instances.set(testobj);
 
