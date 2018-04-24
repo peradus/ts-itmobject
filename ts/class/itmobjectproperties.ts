@@ -17,6 +17,15 @@ class ItmObjectProperties {
       return property;
    }
 
+   public setValue(name:string, value:string) {
+      if (this.exist(name)) {
+         this.get(name).data.value=value;
+      }
+      else {
+         this.set(new ItmObjectProperty(name, value));
+      }
+   }
+
    public exist(name:string | undefined):boolean {
       if (name==undefined) return false
       else 
@@ -27,25 +36,13 @@ class ItmObjectProperties {
       return this._properties[property];
    }
 
-   public getValue(property:string):string {
-      if (this.exist(property)) {
-         return this._properties[property].data.value;
-      }
-      return "";
-   }
-
-   public setValue(property:string, value:string):string {
-      if (this.exist(property)) {
-         return this._properties[property].data.value=value;
-      }
-      else {
-         this.set(new ItmObjectProperty(property,value));
-         return value;
-      }
-   }
-
    public toString():string
    {
       return Object.keys(this._properties).join(",");
+   }
+
+   public toJSON():string
+   {
+      return JSON.stringify(this._properties)
    }
 }

@@ -47,71 +47,12 @@ var ItmObjectMethods = /** @class */ (function () {
     };
     return ItmObjectMethods;
 }());
-var ItmObjectPropertyData = /** @class */ (function () {
-    function ItmObjectPropertyData() {
-        this._name = '';
-        this._value = '';
-        this._validator = '';
-    }
-    Object.defineProperty(ItmObjectPropertyData.prototype, "name", {
-        get: function () {
-            return this._name;
-        },
-        set: function (aname) {
-            this._name = aname;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(ItmObjectPropertyData.prototype, "value", {
-        get: function () {
-            return this._value;
-        },
-        set: function (avalue) {
-            if (this.validate(avalue))
-                this._value = avalue;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(ItmObjectPropertyData.prototype, "validator", {
-        get: function () {
-            return this._validator;
-        },
-        set: function (avalidator) {
-            this._validator = avalidator;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    ItmObjectPropertyData.prototype.validate = function (value) {
-        if (this._validator !== "") { // if regexpr match set
-            if (value.search(this._validator) !== -1) { // does match
-                return true;
-            }
-            else {
-                return false;
-            }
-        }
-        else { // no regexpr match set, accept value
-            return true;
-        }
-    };
-    return ItmObjectPropertyData;
-}());
-///<reference path='./itmobjectpropertydata.ts'/>
 var ItmObjectProperty = /** @class */ (function () {
-    function ItmObjectProperty(name, value) {
-        this._data = new ItmObjectPropertyData();
-        this._data.name = name;
-        this._data.value = value;
+    function ItmObjectProperty(name, value, validator) {
+        if (validator === void 0) { validator = ''; }
+        this._data = new ItmObjectPropertyData(name, value, validator);
     }
     Object.defineProperty(ItmObjectProperty.prototype, "data", {
-        /**
-         * Set Property value, if regexpr match set- value will be checked and only set if match
-         * @param value
-         * returns true/false upon succesful set
-         */
         get: function () {
             return this._data;
         },
@@ -137,6 +78,14 @@ var ItmObjectProperties = /** @class */ (function () {
         this._properties[property.name] = property;
         return property;
     };
+    ItmObjectProperties.prototype.setValue = function (name, value) {
+        if (this.exist(name)) {
+            this.get(name).data.value = value;
+        }
+        else {
+            this.set(new ItmObjectProperty(name, value));
+        }
+    };
     ItmObjectProperties.prototype.exist = function (name) {
         if (name == undefined)
             return false;
@@ -146,23 +95,11 @@ var ItmObjectProperties = /** @class */ (function () {
     ItmObjectProperties.prototype.get = function (property) {
         return this._properties[property];
     };
-    ItmObjectProperties.prototype.getValue = function (property) {
-        if (this.exist(property)) {
-            return this._properties[property].data.value;
-        }
-        return "";
-    };
-    ItmObjectProperties.prototype.setValue = function (property, value) {
-        if (this.exist(property)) {
-            return this._properties[property].data.value = value;
-        }
-        else {
-            this.set(new ItmObjectProperty(property, value));
-            return value;
-        }
-    };
     ItmObjectProperties.prototype.toString = function () {
         return Object.keys(this._properties).join(",");
+    };
+    ItmObjectProperties.prototype.toJSON = function () {
+        return JSON.stringify(this._properties);
     };
     return ItmObjectProperties;
 }());
@@ -453,4 +390,59 @@ var TestItmObject = /** @class */ (function (_super) {
 var obj = new ItmObject('test');
 var testobj = new TestItmObject('test123');
 obj.instances.set(testobj);
+var ItmObjectPropertyData = /** @class */ (function () {
+    function ItmObjectPropertyData(name, value, validator) {
+        if (validator === void 0) { validator = ''; }
+        this._name = name;
+        this._validator = validator;
+        this._value = '';
+        // set using validator
+        this.value = value;
+    }
+    Object.defineProperty(ItmObjectPropertyData.prototype, "name", {
+        get: function () {
+            return this._propertydata.name;
+        },
+        set: function (aname) {
+            this._name = aname;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ItmObjectPropertyData.prototype, "value", {
+        get: function () {
+            return this._value;
+        },
+        set: function (avalue) {
+            if (this.validate(avalue))
+                this._value = avalue;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ItmObjectPropertyData.prototype, "validator", {
+        get: function () {
+            return this._validator;
+        },
+        set: function (avalidator) {
+            this._validator = avalidator;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    ItmObjectPropertyData.prototype.validate = function (value) {
+        if (this._validator !== "") { // if regexpr match set
+            if (value.search(this._validator) !== -1) { // does match
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else { // no regexpr match set, accept value
+            return true;
+        }
+    };
+    return ItmObjectPropertyData;
+}());
 //# sourceMappingURL=itmobjects.js.map
