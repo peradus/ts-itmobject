@@ -14,7 +14,7 @@ class ItmObjectPropertyData {
 
    get name():string 
    {
-      return this._propertydata.name;
+      return this._name;
    }
    set name(aname:string)
    {

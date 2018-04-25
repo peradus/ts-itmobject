@@ -20,22 +20,13 @@ class ItmObjectProperties {
    public get(property:string):ItmObjectProperty {
       return this._properties[property];
    }
-   
+
    public exist(name:string | undefined):boolean {
       if (name==undefined) return false
       else 
          return (name in this._properties);
    }
    
-   public setValue(name:string, value:string) {
-      if (this.exist(name)) {
-         this.get(name).data.value=value;
-      }
-      else {
-         this.set(new ItmObjectProperty(name, value));
-      }
-   }
-
    public getValue(name:string) {
       if (this.exist(name)) {
          return this.get(name).data.value;
@@ -44,5 +35,17 @@ class ItmObjectProperties {
          return "";
       }
    }
+   
+   public setValue(name:string, value:string):string {
+      if (this.exist(name)) {
+         this.get(name).data.value=value;
+      }
+      else {
+         this.set(new ItmObjectProperty(name, value));
+      }
+      return this.getValue(name);
+   }
+
+
 
 }
