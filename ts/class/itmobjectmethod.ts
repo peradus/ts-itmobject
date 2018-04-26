@@ -13,21 +13,32 @@ class ItmObjectMethod {
       this._action=function(){};
    }
 
-   public name():string {
+   get name():string {
       return this._name;
    }
-
-   public setAction(f:Function):ItmObjectMethod {
-      this._action=f;
-      return this;
+   set name(name) {
+      this._name=name;
    }
 
-   public parameters(p:ItmObjectProperties):ItmObjectMethod {
-      this._parameters=p;
-      return this;
+   get parameters():ItmObjectProperties {
+      return this._parameters;
    }
 
-   public methods(m:ItmObjectMethods):ItmObjectMethod {
-      return this;
+   get methods():ItmObjectMethods {
+      return this._methods;
    }
+
+   set action(action:Function) {
+      this._action=action;
+   }
+
+   public toString():string {
+      let obj={
+         "parameters":this._parameters.toString(),
+         "methods":this._methods.toString()
+      }  
+      
+      return this._name+JSON.stringify(obj);
+   }
+   
 }

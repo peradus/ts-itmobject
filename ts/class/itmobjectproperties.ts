@@ -29,7 +29,7 @@ class ItmObjectProperties {
    
    public getValue(name:string) {
       if (this.exist(name)) {
-         return this.get(name).data.value;
+         return this.get(name).value;
       }
       else {
          return "";
@@ -38,7 +38,7 @@ class ItmObjectProperties {
    
    public setValue(name:string, value:string):string {
       if (this.exist(name)) {
-         this.get(name).data.value=value;
+         this.get(name).value=value;
       }
       else {
          this.set(new ItmObjectProperty(name, value));
@@ -46,6 +46,14 @@ class ItmObjectProperties {
       return this.getValue(name);
    }
 
-
+   public toString():string {
+      var resultArray:string[]=[];
+      let propertykeys:string[]=Object.keys(this._properties);
+      let t=this;
+      propertykeys.forEach(function(key) {
+         resultArray.push(t.get(key).toString());
+      });
+      return resultArray.join(",");
+   }
 
 }

@@ -16,19 +16,43 @@ var ItmObjectMethod = /** @class */ (function () {
         this._methods = new ItmObjectMethods;
         this._action = function () { };
     }
-    ItmObjectMethod.prototype.name = function () {
-        return this._name;
-    };
-    ItmObjectMethod.prototype.setAction = function (f) {
-        this._action = f;
-        return this;
-    };
-    ItmObjectMethod.prototype.parameters = function (p) {
-        this._parameters = p;
-        return this;
-    };
-    ItmObjectMethod.prototype.methods = function (m) {
-        return this;
+    Object.defineProperty(ItmObjectMethod.prototype, "name", {
+        get: function () {
+            return this._name;
+        },
+        set: function (name) {
+            this._name = name;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ItmObjectMethod.prototype, "parameters", {
+        get: function () {
+            return this._parameters;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ItmObjectMethod.prototype, "methods", {
+        get: function () {
+            return this._methods;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ItmObjectMethod.prototype, "action", {
+        set: function (action) {
+            this._action = action;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    ItmObjectMethod.prototype.toString = function () {
+        var obj = {
+            "parameters": this._parameters.toString(),
+            "methods": this._methods.toString()
+        };
+        return this._name + JSON.stringify(obj);
     };
     return ItmObjectMethod;
 }());
@@ -38,56 +62,69 @@ var ItmObjectMethods = /** @class */ (function () {
         this._methods = {};
         this._methods = {};
     }
-    ItmObjectMethods.prototype.add = function (method) {
-        this._methods[method.name()] = method;
+    ItmObjectMethods.prototype.set = function (method) {
+        this._methods[method.name] = method;
         return method;
     };
+    ItmObjectMethods.prototype.get = function (method) {
+        return this._methods[method];
+    };
+    ItmObjectMethods.prototype.exist = function (name) {
+        if (name == undefined)
+            return false;
+        else
+            return (name in this._methods);
+    };
     ItmObjectMethods.prototype.toString = function () {
-        return Object.keys(this._methods).join(",");
+        var resultArray = [];
+        var methodkeys = Object.keys(this._methods);
+        var t = this;
+        methodkeys.forEach(function (key) {
+            resultArray.push(t.get(key).toString());
+        });
+        return resultArray.join(",");
     };
     return ItmObjectMethods;
 }());
-var ItmObjectPropertyData = /** @class */ (function () {
-    function ItmObjectPropertyData(name, value, validator) {
+var ItmObjectProperty = /** @class */ (function () {
+    function ItmObjectProperty(name, value, validator) {
         if (validator === void 0) { validator = ''; }
         this._name = name;
+        this._value = value;
         this._validator = validator;
-        this._value = '';
-        // set using validator
-        this.value = value;
     }
-    Object.defineProperty(ItmObjectPropertyData.prototype, "name", {
+    Object.defineProperty(ItmObjectProperty.prototype, "name", {
         get: function () {
             return this._name;
         },
-        set: function (aname) {
-            this._name = aname;
+        set: function (name) {
+            this._name = name;
         },
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(ItmObjectPropertyData.prototype, "value", {
+    Object.defineProperty(ItmObjectProperty.prototype, "value", {
         get: function () {
-            return this._value;
+            return this._name;
         },
-        set: function (avalue) {
-            if (this.validate(avalue))
-                this._value = avalue;
+        set: function (value) {
+            if (this.validate(value))
+                this._value = value;
         },
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(ItmObjectPropertyData.prototype, "validator", {
+    Object.defineProperty(ItmObjectProperty.prototype, "validator", {
         get: function () {
             return this._validator;
         },
-        set: function (avalidator) {
-            this._validator = avalidator;
+        set: function (validator) {
+            this._validator = validator;
         },
         enumerable: true,
         configurable: true
     });
-    ItmObjectPropertyData.prototype.validate = function (value) {
+    ItmObjectProperty.prototype.validate = function (value) {
         if (this._validator !== "") { // if regexpr match set
             if (value.search(this._validator) !== -1) { // does match
                 return true;
@@ -100,38 +137,12 @@ var ItmObjectPropertyData = /** @class */ (function () {
             return true;
         }
     };
-    return ItmObjectPropertyData;
-}());
-///<reference path='./itmobjectpropertydata.ts'/>
-var ItmObjectProperty = /** @class */ (function () {
-    function ItmObjectProperty(name, value, validator) {
-        if (validator === void 0) { validator = ''; }
-        this._data = new ItmObjectPropertyData(name, value, validator);
-    }
-    Object.defineProperty(ItmObjectProperty.prototype, "data", {
-        get: function () {
-            return this._data;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(ItmObjectProperty.prototype, "name", {
-        get: function () {
-            return this._data.name;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(ItmObjectProperty.prototype, "parameters", {
-        get: function () {
-            var obj = {
-                "validator": this._data.validator
-            };
-            return JSON.stringify(obj);
-        },
-        enumerable: true,
-        configurable: true
-    });
+    ItmObjectProperty.prototype.toString = function () {
+        var obj = {
+            "validator": this.validator
+        };
+        return this._name + JSON.stringify(obj);
+    };
     return ItmObjectProperty;
 }());
 ///<reference path='./itmobjectproperty.ts'/>
@@ -155,7 +166,7 @@ var ItmObjectProperties = /** @class */ (function () {
     };
     ItmObjectProperties.prototype.getValue = function (name) {
         if (this.exist(name)) {
-            return this.get(name).data.value;
+            return this.get(name).value;
         }
         else {
             return "";
@@ -163,12 +174,21 @@ var ItmObjectProperties = /** @class */ (function () {
     };
     ItmObjectProperties.prototype.setValue = function (name, value) {
         if (this.exist(name)) {
-            this.get(name).data.value = value;
+            this.get(name).value = value;
         }
         else {
             this.set(new ItmObjectProperty(name, value));
         }
         return this.getValue(name);
+    };
+    ItmObjectProperties.prototype.toString = function () {
+        var resultArray = [];
+        var propertykeys = Object.keys(this._properties);
+        var t = this;
+        propertykeys.forEach(function (key) {
+            resultArray.push(t.get(key).toString());
+        });
+        return resultArray.join(",");
     };
     return ItmObjectProperties;
 }());
@@ -459,4 +479,10 @@ var TestItmObject = /** @class */ (function (_super) {
 var obj = new ItmObject('test');
 var testobj = new TestItmObject('test123');
 obj.instances.set(testobj);
+var method = new ItmObjectMethod('stop');
+var methodA = new ItmObjectMethod('stopA');
+var methodB = new ItmObjectMethod('stopB');
+method.methods.set(methodA);
+method.methods.set(methodB);
+obj.methods.set(method);
 //# sourceMappingURL=itmobjects.js.map
