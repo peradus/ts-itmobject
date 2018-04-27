@@ -3,7 +3,7 @@
 ///<reference path='./itmobjectinstances.ts'/>
 
 class ItmObject  {
-   
+
    protected _instances:ItmObjectInstances;
    protected _methods:ItmObjectMethods;
    protected _properties:ItmObjectProperties;
@@ -14,11 +14,11 @@ class ItmObject  {
          this._properties=new ItmObjectProperties();
          this._instances=new ItmObjectInstances();
 
-         this._properties.set( new ItmObjectProperty('_name',name) );
-         this._properties.set( new ItmObjectProperty('_className','itmobject') );
-         this._properties.set( new ItmObjectProperty('_displayname',name) );
-         this._properties.set( new ItmObjectProperty('_description','') );
-         this._properties.set( new ItmObjectProperty('_status','ok') );
+         this.setPropertyValue('_name',name);
+         this.setPropertyValue('_className','itmobject');
+         this.setPropertyValue('_displayname',name);
+         this.setPropertyValue('_description','');
+         this.setPropertyValue('_status','ok');
       }
 
    
