@@ -626,6 +626,187 @@ var ItmObject = /** @class */ (function () {
     };
     return ItmObject;
 }());
+// generic helper functions
+function isFunction(x) { return typeof x == 'function'; }
+function isObject(x) { return typeof x == 'object'; }
+function isDefined(x) { return typeof x !== 'undefined'; }
+function notDefined(x) { return typeof x == 'undefined'; }
+;
+function isString(x) { return typeof x === 'string'; }
+function isArray(x) { return Array.isArray(x); }
+function hasJQueryResults(x) { return x[0]; }
+/**
+ * Parse safely JSON data, if not valid return empty object
+ * @param json - JSON data
+ * @return {} - object
+ */
+function jsonParse(str) {
+    var result = {};
+    try {
+        result = JSON.parse(str.trim());
+    }
+    catch (exception) {
+        result = {};
+    }
+    return result;
+}
+/**
+ * Return all ItmObjectFields
+ */
+function ALL_ITMOBJECT_FIELDS() {
+    return [
+        "className",
+        "status",
+        "name",
+        "displayName",
+        "description",
+        "instances",
+        "methods",
+        "properties" // get instance properties
+    ];
+}
+/**
+ * Return all ItmObjectFields to be refreshed
+ */
+function REFRESH_ITMOBJECT_FIELDS() {
+    return [
+        //"instances",   // get instances
+        "className",
+        "status",
+        "methods" // get instance methods
+    ];
+}
+/**
+ * Return all Instance ItmObjectFields
+ */
+function INSTANCE_ITMOBJECT_FIELDS() {
+    return [
+        "className",
+        "status",
+        "name",
+        "displayName",
+        "methods" // get instance methods
+    ];
+}
+if (!String.prototype.format) {
+    String.prototype.format = function () {
+        var args = arguments;
+        return this.replace(/{(\d+)}/g, function (match, number) {
+            return typeof args[number] != 'undefined'
+                ? args[number]
+                : match;
+        });
+    };
+}
+///<reference path='./itmobject.ts'/>
+///<reference path='./itmhelperfunctions.ts'/>
+// https://stackoverflow.com/questions/14742194/declaring-an-htmlelement-typescript
+var ItmView = /** @class */ (function () {
+    /** construct an ItmView from an ItmObject
+     * @param itmObject - from which itmObject
+     * @param selectedInstance - from which instance
+     */
+    function ItmView(element, itmObject, selectedInstance) {
+        this.selectedInstance = "";
+        this.id = "";
+        this.itmObject = itmObject;
+        this.selectedInstance = selectedInstance;
+        this.id = this.uniqueID();
+        this.element = element;
+        this.span = document.createElement("span");
+        this.span.setAttribute('id', this.id);
+        this.element.appendChild(this.span);
+        this.timerToken = 0;
+    }
+    /**
+     * Generate Unique ID
+     * @param addText - add additional text to unique id
+     * @return uniqueID - like 'jgl9tsrq0.jttxkhan9s8'
+     */
+    ItmView.prototype.uniqueID = function (addText) {
+        if (addText === void 0) { addText = ''; }
+        return Date.now().toString(36) + Math.random().toString(36);
+    };
+    ItmView.prototype.drawBegin = function (s) {
+        s += 'begin>';
+        return s;
+    };
+    ItmView.prototype.drawEnd = function (s) {
+        s += '<end';
+        return s;
+    };
+    ItmView.prototype.drawBody = function (s) {
+        return s;
+    };
+    ItmView.prototype.draw = function (s) {
+        s += this.drawBegin(s);
+        s += this.drawBody(s);
+        s += this.drawEnd(s);
+        return s;
+    };
+    ItmView.prototype.redraw = function () {
+        this.span.innerHTML = this.draw('');
+    };
+    return ItmView;
+}());
+///<reference path='./itmview.ts'/>
+// https://stackoverflow.com/questions/14742194/declaring-an-htmlelement-typescript
+var ItmViewTestTimer = /** @class */ (function (_super) {
+    __extends(ItmViewTestTimer, _super);
+    /** construct an ItmView from an ItmObject
+     * @param itmObject - from which itmObject
+     * @param selectedInstance - from which instance
+     */
+    function ItmViewTestTimer(element, itmObject, selectedInstance) {
+        var _this = _super.call(this, element, itmObject, selectedInstance) || this;
+        _this.timerToken = 0;
+        return _this;
+    }
+    ItmViewTestTimer.prototype.drawBody = function (s) {
+        // s+=super.drawBody(s);
+        s += new Date().toUTCString();
+        return s;
+    };
+    ItmViewTestTimer.prototype.start = function () {
+        var _this = this;
+        this.timerToken = setInterval(function () { return _this.redraw(); }, 1000);
+    };
+    ItmViewTestTimer.prototype.stop = function () {
+        clearTimeout(this.timerToken);
+    };
+    return ItmViewTestTimer;
+}(ItmView));
+///<reference path='./class/itmobject.ts'/>
+///<reference path='./class/itmview.ts'/>
+///<reference path='./class/itmviewtesttimer.ts'/>
+// ******************
+// MAIN CODE START
+//
+// Create an ITMObject for test
+var obj = new ItmObject('test');
+// Create an instance
+var testobj = new ItmObject('test123');
+obj.instances.set(testobj);
+var prop1 = new ItmObjectProperty("HOST", "123");
+obj.properties.set(prop1);
+var methodA = new ItmObjectMethod('stopA');
+var methodB = new ItmObjectMethod('stopB');
+var method = new ItmObjectMethod('stop');
+method.methods.set(methodA);
+method.methods.set(methodB);
+obj.methods.set(method);
+var method2 = new ItmObjectMethod('start');
+method2.parameters.set(prop1);
+obj.methods.set(method2);
+// INIT CODE AFTER DOCUMENT LOAD
+//window.onload = () => {
+var el = document.getElementById('main');
+var itmview;
+if (el) {
+    itmview = new ItmViewTestTimer(el, obj, '');
+    //      itmview.start();
+}
+//};
 ///<reference path='./itmobject.ts'/>
 var TestItmObject = /** @class */ (function (_super) {
     __extends(TestItmObject, _super);
@@ -636,19 +817,4 @@ var TestItmObject = /** @class */ (function (_super) {
     }
     return TestItmObject;
 }(ItmObject));
-///<reference path='./class/itmobject.ts'/>
-///<reference path='./class/test-itmobject.ts'/>
-var obj = new ItmObject('test');
-var testobj = new TestItmObject('test123');
-obj.instances.set(testobj);
-var prop1 = new ItmObjectProperty("HOST", "123");
-var methodA = new ItmObjectMethod('stopA');
-var methodB = new ItmObjectMethod('stopB');
-var method = new ItmObjectMethod('stop');
-method.methods.set(methodA);
-method.methods.set(methodB);
-obj.methods.set(method);
-var method2 = new ItmObjectMethod('start');
-method2.parameters.set(prop1);
-obj.methods.set(method2);
 //# sourceMappingURL=itmobjects.js.map
