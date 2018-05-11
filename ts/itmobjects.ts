@@ -1,5 +1,6 @@
 ///<reference path='./class/itmobject.ts'/>
 ///<reference path='./class/itmview.ts'/>
+///<reference path='./class/itmviewbreadcrumbs.ts'/>
 ///<reference path='./class/itmviewtesttimer.ts'/>
 
 // ******************
@@ -29,12 +30,21 @@ let method2=new ItmObjectMethod('start');
 method2.parameters.set(prop1);
 obj.methods.set(method2);
 
+var itmview:ItmViewTestTimer;
+var breadcrumbs:ItmViewBreadCrumbs;
+
+
+
+
 // INIT CODE AFTER DOCUMENT LOAD
-//window.onload = () => {
-   let el=document.getElementById('main');
-   var itmview:ItmView;
+window.onload = () => {
+   var el=document.getElementById('main');
+
    if (el) {
-      itmview=new ItmViewTestTimer(el,obj,'');
-//      itmview.start();
+      // itmview=new ItmViewTestTimer(el,obj,'');
+      itmview=new ItmViewTestTimer(el);
+      breadcrumbs=new ItmViewBreadCrumbs();
+      itmview.addChild(breadcrumbs);
+      itmview.start();
    }
-//};
+};

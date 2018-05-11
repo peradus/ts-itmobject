@@ -626,8 +626,354 @@ var ItmObject = /** @class */ (function () {
     };
     return ItmObject;
 }());
+// generic helper functions
+function isFunction(x) { return typeof x == 'function'; }
+function isObject(x) { return typeof x == 'object'; }
+function isDefined(x) { return typeof x !== 'undefined'; }
+function notDefined(x) { return typeof x == 'undefined'; }
+;
+function isString(x) { return typeof x === 'string'; }
+function isArray(x) { return Array.isArray(x); }
+function hasJQueryResults(x) { return x[0]; }
+/**
+ * Parse safely JSON data, if not valid return empty object
+ * @param json - JSON data
+ * @return {} - object
+ */
+function jsonParse(str) {
+    var result = {};
+    try {
+        result = JSON.parse(str.trim());
+    }
+    catch (exception) {
+        result = {};
+    }
+    return result;
+}
+/**
+ * Return all ItmObjectFields
+ */
+function ALL_ITMOBJECT_FIELDS() {
+    return [
+        "className",
+        "status",
+        "name",
+        "displayName",
+        "description",
+        "instances",
+        "methods",
+        "properties" // get instance properties
+    ];
+}
+/**
+ * Return all ItmObjectFields to be refreshed
+ */
+function REFRESH_ITMOBJECT_FIELDS() {
+    return [
+        //"instances",   // get instances
+        "className",
+        "status",
+        "methods" // get instance methods
+    ];
+}
+/**
+ * Return all Instance ItmObjectFields
+ */
+function INSTANCE_ITMOBJECT_FIELDS() {
+    return [
+        "className",
+        "status",
+        "name",
+        "displayName",
+        "methods" // get instance methods
+    ];
+}
+if (!String.prototype.format) {
+    String.prototype.format = function () {
+        var args = arguments;
+        return this.replace(/{(\d+)}/g, function (match, number) {
+            return typeof args[number] != 'undefined'
+                ? args[number]
+                : match;
+        });
+    };
+}
+///<reference path='./itmobject.ts'/>
+///<reference path='./itmhelperfunctions.ts'/>
+// https://stackoverflow.com/questions/14742194/declaring-an-htmlelement-typescript
+var ItmView = /** @class */ (function () {
+    /** construct an ItmView
+     */
+    function ItmView() {
+        this.id = "";
+        this.children = [];
+        this.id = this.uniqueID();
+        this.children = [];
+        this.debug = false;
+        this.parent = this;
+        this.drawID = true;
+    }
+    /**
+     * Generate Unique ID
+     * @param addText - add additional text to unique id
+     * @return uniqueID - like 'jgl9tsrq0.jttxkhan9s8'
+     */
+    ItmView.prototype.uniqueID = function (addText) {
+        if (addText === void 0) { addText = ''; }
+        return Date.now().toString(36) + Math.random().toString(36);
+    };
+    ItmView.prototype.addChild = function (view) {
+        view.parent = this;
+        this.children.push(view);
+        return view;
+    };
+    ItmView.prototype.getChildIdIndex = function (id) {
+        for (var i = 0; i++; i < this.children.length) {
+            var view = this.children[i];
+            if (view.id == id)
+                return i;
+        }
+        return -1;
+    };
+    ItmView.prototype.removeChildId = function (id) {
+        var idx;
+        idx = this.getChildIdIndex(id);
+        if (idx !== -1) {
+            var view = this.children[idx];
+            view.parent = view;
+            delete this.children[idx];
+            return view;
+        }
+        return null;
+    };
+    ItmView.prototype.removeChildren = function () {
+        while (this.children.length > 0) {
+            var view = void 0;
+            view = this.children[0];
+            this.removeChildId(view.id);
+        }
+    };
+    /**
+     * @param s - debugging string
+     * @return - returns string is debugging enabled
+     */
+    ItmView.prototype.drawDebug = function (s) {
+        var rs = '';
+        if (this.debug === true) {
+            var ds = void 0;
+            ds = "[{0}]".format(s);
+            rs += ds;
+        }
+        return rs;
+    };
+    /**
+     * draw begin of view
+     * @param s - draw string stream
+     * @return - returns begin string stream
+     */
+    ItmView.prototype.drawBegin = function () {
+        var s = '';
+        if (this.drawID) {
+            s += "<span id=\"{0}\">".format(this.id);
+        }
+        s += this.drawDebug('drawBegin');
+        return s;
+    };
+    /**
+     * draw end of view
+     * @param s - draw string stream
+     * @return - returns begin string stream
+     */
+    ItmView.prototype.drawEnd = function () {
+        var s = '';
+        s += this.drawDebug('drawEnd');
+        if (this.drawID) {
+            s += "</span>";
+        }
+        return s;
+    };
+    /**
+     * draw main body of view
+     * @param s - draw string stream
+     * @return - returns begin string stream
+     */
+    ItmView.prototype.drawBody = function () {
+        var s = '';
+        s += this.drawDebug('drawBody');
+        s += this.drawChildren();
+        return s;
+    };
+    ItmView.prototype.drawChildrenBegin = function () {
+        var s = '';
+        s += this.drawDebug('drawChildrenBegin');
+        return s;
+    };
+    ItmView.prototype.drawChildrenEnd = function () {
+        var s = '';
+        s += this.drawDebug('drawChildrenEnd');
+        return s;
+    };
+    ItmView.prototype.drawChildren = function () {
+        var s = '';
+        s += this.drawChildrenBegin();
+        var thisView = this;
+        s += this.drawDebug('drawChildren');
+        this.children.forEach(function (view) {
+            s += thisView.drawDebug('drawChild id=[{0}]'.format(view.id));
+            s += view.draw();
+        });
+        s += this.drawChildrenEnd();
+        return s;
+    };
+    /**
+     * draw entire view
+     * @param s - draw string stream
+     * @return - returns begin string stream
+     */
+    ItmView.prototype.draw = function () {
+        var s = '';
+        s += this.drawBegin();
+        s += this.drawBody();
+        s += this.drawEnd();
+        return s;
+    };
+    ItmView.prototype.redraw = function () {
+        var el;
+        el = document.getElementById(this.id);
+        if (el) {
+            el.outerHTML = this.draw();
+        }
+    };
+    return ItmView;
+}());
+///<reference path='./itmview.ts'/>
+// https://stackoverflow.com/questions/14742194/declaring-an-htmlelement-typescript
+var ItmViewBreadCrumb = /** @class */ (function (_super) {
+    __extends(ItmViewBreadCrumb, _super);
+    /** construct an ItmView from an ItmObject
+     * @param itmObject - from which itmObject
+     * @param selectedInstance - from which instance
+     */
+    function ItmViewBreadCrumb(name) {
+        var _this = _super.call(this) || this;
+        _this.name = name;
+        _this.active = true;
+        _this.drawID = false;
+        return _this;
+    }
+    /* <li class="breadcrumb-item"><a href="#">Home</a></li>
+    <li class="breadcrumb-item"><a href="#">Library</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Data</li>
+    */
+    ItmViewBreadCrumb.prototype.drawBody = function () {
+        var s = '';
+        s += "<li class=\"breadcrumb-item\"><a href=\"#\">{0}</a></li>\n   ".format(this.name);
+        return s;
+    };
+    return ItmViewBreadCrumb;
+}(ItmView));
+///<reference path='./itmview.ts'/>
+///<reference path='./itmviewbreadcrumb.ts'/>
+// https://stackoverflow.com/questions/14742194/declaring-an-htmlelement-typescript
+var ItmViewBreadCrumbs = /** @class */ (function (_super) {
+    __extends(ItmViewBreadCrumbs, _super);
+    /** construct an ItmView from an ItmObject
+     * @param itmObject - from which itmObject
+     * @param selectedInstance - from which instance
+     */
+    function ItmViewBreadCrumbs() {
+        var _this = _super.call(this) || this;
+        _this.breadCrumbs = [];
+        _this.breadCrumbs = ['abc', 'def', 'ghi', 'jkl', 'mno', 'pqr', 'stu', 'vwx', 'yz'];
+        _this.rebuildBreadCrumbs();
+        return _this;
+    }
+    ItmViewBreadCrumbs.prototype.drawBegin = function () {
+        var s = '';
+        s += _super.prototype.drawBegin.call(this);
+        s += "<nav aria-label=\"breadcrumb\">\n      ";
+        return s;
+    };
+    ItmViewBreadCrumbs.prototype.drawEnd = function () {
+        var s = '';
+        s += "</nav>\n      ";
+        s += _super.prototype.drawEnd.call(this);
+        return s;
+    };
+    ItmViewBreadCrumbs.prototype.drawChildrenBegin = function () {
+        var s = '';
+        s += _super.prototype.drawChildrenBegin.call(this);
+        s += "<ol class=\"breadcrumb\">\n      ";
+        return s;
+    };
+    ItmViewBreadCrumbs.prototype.drawChildrenEnd = function () {
+        var s = '';
+        s += "</ol>\n      ";
+        s += _super.prototype.drawChildrenEnd.call(this);
+        return s;
+    };
+    ItmViewBreadCrumbs.prototype.rebuildBreadCrumbs = function () {
+        this.removeChildren();
+        var thisView = this;
+        this.breadCrumbs.forEach(function (name) {
+            var breadCrumb = new ItmViewBreadCrumb(name);
+            thisView.addChild(breadCrumb);
+        });
+    };
+    return ItmViewBreadCrumbs;
+}(ItmView));
+///<reference path='./itmobject.ts'/>
+///<reference path='./itmview.ts'/>
+///<reference path='./itmhelperfunctions.ts'/>
+// https://stackoverflow.com/questions/14742194/declaring-an-htmlelement-typescript
+var ItmViewElement = /** @class */ (function (_super) {
+    __extends(ItmViewElement, _super);
+    /** construct an ItmView from an ItmObject
+     * @param itmObject - from which itmObject
+     * @param selectedInstance - from which instance
+     */
+    function ItmViewElement(element) {
+        var _this = _super.call(this) || this;
+        _this.element = element;
+        _this.div = document.createElement("div");
+        _this.div.innerHTML = _this.draw();
+        _this.element.appendChild(_this.div);
+        return _this;
+    }
+    return ItmViewElement;
+}(ItmView));
+///<reference path='./itmview.ts'/>
+///<reference path='./itmviewelement.ts'/>
+// https://stackoverflow.com/questions/14742194/declaring-an-htmlelement-typescript
+var ItmViewTestTimer = /** @class */ (function (_super) {
+    __extends(ItmViewTestTimer, _super);
+    /** construct an ItmView from an ItmObject
+     * @param itmObject - from which itmObject
+     * @param selectedInstance - from which instance
+     */
+    function ItmViewTestTimer(element) {
+        var _this = _super.call(this, element) || this;
+        _this.timerToken = 0;
+        return _this;
+    }
+    ItmViewTestTimer.prototype.drawBody = function () {
+        var s = '';
+        s += new Date().toUTCString();
+        s += _super.prototype.drawBody.call(this);
+        return s;
+    };
+    ItmViewTestTimer.prototype.start = function () {
+        var _this = this;
+        this.timerToken = setInterval(function () { return _this.redraw(); }, 1000);
+    };
+    ItmViewTestTimer.prototype.stop = function () {
+        clearTimeout(this.timerToken);
+    };
+    return ItmViewTestTimer;
+}(ItmViewElement));
 ///<reference path='./class/itmobject.ts'/>
 ///<reference path='./class/itmview.ts'/>
+///<reference path='./class/itmviewbreadcrumbs.ts'/>
 ///<reference path='./class/itmviewtesttimer.ts'/>
 // ******************
 // MAIN CODE START
@@ -648,15 +994,19 @@ obj.methods.set(method);
 var method2 = new ItmObjectMethod('start');
 method2.parameters.set(prop1);
 obj.methods.set(method2);
-// INIT CODE AFTER DOCUMENT LOAD
-//window.onload = () => {
-var el = document.getElementById('main');
 var itmview;
-if (el) {
-    itmview = new ItmViewTestTimer(el, obj, '');
-    //      itmview.start();
-}
-//};
+var breadcrumbs;
+// INIT CODE AFTER DOCUMENT LOAD
+window.onload = function () {
+    var el = document.getElementById('main');
+    if (el) {
+        // itmview=new ItmViewTestTimer(el,obj,'');
+        itmview = new ItmViewTestTimer(el);
+        breadcrumbs = new ItmViewBreadCrumbs();
+        itmview.addChild(breadcrumbs);
+        itmview.start();
+    }
+};
 ///<reference path='./itmobject.ts'/>
 var TestItmObject = /** @class */ (function (_super) {
     __extends(TestItmObject, _super);
