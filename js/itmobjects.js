@@ -705,14 +705,60 @@ var ItmView = /** @class */ (function () {
     /** construct an ItmView
      */
     function ItmView() {
-        this.id = "";
-        this.children = [];
-        this.id = this.uniqueID();
-        this.children = [];
-        this.debug = false;
-        this.parent = this;
-        this.drawID = true;
+        this._debug = false;
+        this._drawID = true;
+        this._id = "";
+        this._id = this.uniqueID();
+        this._parent = this;
+        this._view = undefined;
     }
+    Object.defineProperty(ItmView.prototype, "debug", {
+        get: function () {
+            return this._debug;
+        },
+        set: function (enable) {
+            this._debug = enable;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ItmView.prototype, "drawID", {
+        get: function () {
+            return this._drawID;
+        },
+        set: function (enable) {
+            this._drawID = enable;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ItmView.prototype, "id", {
+        get: function () {
+            return this._id;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ItmView.prototype, "parent", {
+        get: function () {
+            return this._parent;
+        },
+        set: function (p) {
+            this._parent = p;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ItmView.prototype, "view", {
+        get: function () {
+            return this._view;
+        },
+        set: function (p) {
+            this._view = p;
+        },
+        enumerable: true,
+        configurable: true
+    });
     /**
      * Generate Unique ID
      * @param addText - add additional text to unique id
@@ -721,37 +767,6 @@ var ItmView = /** @class */ (function () {
     ItmView.prototype.uniqueID = function (addText) {
         if (addText === void 0) { addText = ''; }
         return Date.now().toString(36) + Math.random().toString(36);
-    };
-    ItmView.prototype.addChild = function (view) {
-        view.parent = this;
-        this.children.push(view);
-        return view;
-    };
-    ItmView.prototype.getChildIdIndex = function (id) {
-        for (var i = 0; i++; i < this.children.length) {
-            var view = this.children[i];
-            if (view.id == id)
-                return i;
-        }
-        return -1;
-    };
-    ItmView.prototype.removeChildId = function (id) {
-        var idx;
-        idx = this.getChildIdIndex(id);
-        if (idx !== -1) {
-            var view = this.children[idx];
-            view.parent = view;
-            delete this.children[idx];
-            return view;
-        }
-        return null;
-    };
-    ItmView.prototype.removeChildren = function () {
-        while (this.children.length > 0) {
-            var view = void 0;
-            view = this.children[0];
-            this.removeChildId(view.id);
-        }
     };
     /**
      * @param s - debugging string
@@ -800,29 +815,9 @@ var ItmView = /** @class */ (function () {
     ItmView.prototype.drawBody = function () {
         var s = '';
         s += this.drawDebug('drawBody');
-        s += this.drawChildren();
-        return s;
-    };
-    ItmView.prototype.drawChildrenBegin = function () {
-        var s = '';
-        s += this.drawDebug('drawChildrenBegin');
-        return s;
-    };
-    ItmView.prototype.drawChildrenEnd = function () {
-        var s = '';
-        s += this.drawDebug('drawChildrenEnd');
-        return s;
-    };
-    ItmView.prototype.drawChildren = function () {
-        var s = '';
-        s += this.drawChildrenBegin();
-        var thisView = this;
-        s += this.drawDebug('drawChildren');
-        this.children.forEach(function (view) {
-            s += thisView.drawDebug('drawChild id=[{0}]'.format(view.id));
-            s += view.draw();
-        });
-        s += this.drawChildrenEnd();
+        if (this.view) {
+            s += this.view.draw();
+        }
         return s;
     };
     /**
@@ -846,6 +841,73 @@ var ItmView = /** @class */ (function () {
     };
     return ItmView;
 }());
+///<reference path='./itmobject.ts'/>
+///<reference path='./itmview.ts'/>
+///<reference path='./itmhelperfunctions.ts'/>
+// https://stackoverflow.com/questions/14742194/declaring-an-htmlelement-typescript
+var ItmViewChildren = /** @class */ (function (_super) {
+    __extends(ItmViewChildren, _super);
+    /** construct an ItmView
+     */
+    function ItmViewChildren() {
+        var _this = _super.call(this) || this;
+        _this.children = [];
+        _this.children = [];
+        return _this;
+    }
+    ItmViewChildren.prototype.addChild = function (view) {
+        view.parent = this;
+        this.children.push(view);
+        return view;
+    };
+    ItmViewChildren.prototype.getChildIdIndex = function (id) {
+        for (var i = 0; i++; i < this.children.length) {
+            var view = this.children[i];
+            if (view.id == id)
+                return i;
+        }
+        return -1;
+    };
+    ItmViewChildren.prototype.removeChildId = function (id) {
+        var idx;
+        idx = this.getChildIdIndex(id);
+        if (idx !== -1) {
+            var view = this.children[idx];
+            view.parent = view;
+            delete this.children[idx];
+            return view;
+        }
+        return null;
+    };
+    ItmViewChildren.prototype.removeChildren = function () {
+        while (this.children.length > 0) {
+            var view = void 0;
+            view = this.children[0];
+            this.removeChildId(view.id);
+        }
+    };
+    ItmViewChildren.prototype.drawChildrenBegin = function () {
+        var s = '';
+        return s;
+    };
+    ItmViewChildren.prototype.drawChildrenEnd = function () {
+        var s = '';
+        return s;
+    };
+    ItmViewChildren.prototype.drawBody = function () {
+        var s = '';
+        var thisView = this;
+        s += this.drawDebug('drawChildren');
+        s += this.drawChildrenBegin();
+        this.children.forEach(function (view) {
+            s += thisView.drawDebug('drawChild id=[{0}]'.format(view.id));
+            s += view.draw();
+        });
+        s += this.drawChildrenEnd();
+        return s;
+    };
+    return ItmViewChildren;
+}(ItmView));
 ///<reference path='./itmview.ts'/>
 // https://stackoverflow.com/questions/14742194/declaring-an-htmlelement-typescript
 var ItmViewBreadCrumb = /** @class */ (function (_super) {
@@ -873,6 +935,7 @@ var ItmViewBreadCrumb = /** @class */ (function (_super) {
     return ItmViewBreadCrumb;
 }(ItmView));
 ///<reference path='./itmview.ts'/>
+///<reference path='./itmviewchildren.ts'/>
 ///<reference path='./itmviewbreadcrumb.ts'/>
 // https://stackoverflow.com/questions/14742194/declaring-an-htmlelement-typescript
 var ItmViewBreadCrumbs = /** @class */ (function (_super) {
@@ -902,14 +965,12 @@ var ItmViewBreadCrumbs = /** @class */ (function (_super) {
     };
     ItmViewBreadCrumbs.prototype.drawChildrenBegin = function () {
         var s = '';
-        s += _super.prototype.drawChildrenBegin.call(this);
         s += "<ol class=\"breadcrumb\">\n      ";
         return s;
     };
     ItmViewBreadCrumbs.prototype.drawChildrenEnd = function () {
         var s = '';
         s += "</ol>\n      ";
-        s += _super.prototype.drawChildrenEnd.call(this);
         return s;
     };
     ItmViewBreadCrumbs.prototype.rebuildBreadCrumbs = function () {
@@ -921,7 +982,7 @@ var ItmViewBreadCrumbs = /** @class */ (function (_super) {
         });
     };
     return ItmViewBreadCrumbs;
-}(ItmView));
+}(ItmViewChildren));
 ///<reference path='./itmobject.ts'/>
 ///<reference path='./itmview.ts'/>
 ///<reference path='./itmhelperfunctions.ts'/>
@@ -995,6 +1056,7 @@ var method2 = new ItmObjectMethod('start');
 method2.parameters.set(prop1);
 obj.methods.set(method2);
 var itmview;
+var itmviewchildren;
 var breadcrumbs;
 // INIT CODE AFTER DOCUMENT LOAD
 window.onload = function () {
@@ -1002,8 +1064,10 @@ window.onload = function () {
     if (el) {
         // itmview=new ItmViewTestTimer(el,obj,'');
         itmview = new ItmViewTestTimer(el);
+        itmviewchildren = new ItmViewChildren();
         breadcrumbs = new ItmViewBreadCrumbs();
-        itmview.addChild(breadcrumbs);
+        itmviewchildren.addChild(breadcrumbs);
+        itmview.view = itmviewchildren;
         itmview.start();
     }
 };

@@ -31,8 +31,8 @@ method2.parameters.set(prop1);
 obj.methods.set(method2);
 
 var itmview:ItmViewTestTimer;
+var itmviewchildren:ItmViewChildren;
 var breadcrumbs:ItmViewBreadCrumbs;
-
 
 
 
@@ -43,8 +43,11 @@ window.onload = () => {
    if (el) {
       // itmview=new ItmViewTestTimer(el,obj,'');
       itmview=new ItmViewTestTimer(el);
+      itmviewchildren=new ItmViewChildren();
+
       breadcrumbs=new ItmViewBreadCrumbs();
-      itmview.addChild(breadcrumbs);
+      itmviewchildren.addChild(breadcrumbs);
+      itmview.view=itmviewchildren;
       itmview.start();
    }
 };

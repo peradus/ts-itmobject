@@ -2,22 +2,58 @@
 ///<reference path='./itmhelperfunctions.ts'/>
 // https://stackoverflow.com/questions/14742194/declaring-an-htmlelement-typescript
 class ItmView  {
-   protected id="";
-   protected debug:boolean;
-   protected children:Array<ItmView>=[];
-   protected parent:ItmView;
-   protected drawID:boolean;
+   protected _debug:boolean=false;
+   protected _drawID:boolean=true;
 
+   protected _id:string="";
+   protected _parent:ItmView;
+   protected _view:ItmView | undefined;
+
+   get debug():boolean    {
+      return this._debug;
+   }
+
+   set debug(enable:boolean)    {
+      this._debug=enable;
+   }
+
+   get drawID():boolean    {
+      return this._drawID;
+   }
+
+   set drawID(enable:boolean)    {
+      this._drawID=enable;
+   }
+   
+   get id():string    {
+      return this._id;
+   }
+
+   get parent():ItmView    {
+      return this._parent;
+   }
+
+   set parent(p:ItmView)    {
+      this._parent=p;
+   }
+   
+   get view():ItmView | undefined   {
+      return this._view;
+   }
+
+   set view(p:ItmView | undefined)    {
+      this._view=p;
+   }
+   
    /** construct an ItmView   
     */
    constructor () {
-      this.id=this.uniqueID();
-      this.children=[];
-      this.debug=false;
-      this.parent=this;
-      this.drawID=true;
+      this._id=this.uniqueID();
+      this._parent=this;
+      this._view=undefined;
+      
    }
-   
+  
    /**
     * Generate Unique ID
     * @param addText - add additional text to unique id
@@ -27,46 +63,11 @@ class ItmView  {
       return Date.now().toString(36)+Math.random().toString(36);
    }
 
-   public addChild(view:ItmView):ItmView {
-      view.parent=this;
-      this.children.push(view);
-      return view;
-   }
-
-   protected getChildIdIndex(id:string):number {
-      for(let i=0; i++; i<this.children.length){
-         let view=this.children[i];
-         if (view.id==id) return i;
-      }   
-      return -1;
-   }
-   
-   protected removeChildId(id:string):ItmView | null{
-      let idx:number;
-      idx=this.getChildIdIndex(id);
-      if (idx !== -1) {
-         let view=this.children[idx];
-         view.parent=view;
-         delete this.children[idx];
-         return view;
-      }      
-      return null;
-   }
-   
-   protected removeChildren() {
-      while (this.children.length > 0) {
-         let view:ItmView;
-         view=this.children[0];         
-         this.removeChildId(view.id);
-      }
-   }
-   
-   
    /**
     * @param s - debugging string
     * @return - returns string is debugging enabled 
     */
-   protected drawDebug(s:string):string {
+   public drawDebug(s:string):string {
       let rs:string='';
       if (this.debug===true) {
          let ds:string;
@@ -112,41 +113,20 @@ class ItmView  {
    protected drawBody():string {
       let s:string='';
       s+=this.drawDebug('drawBody');
-      s+=this.drawChildren();
+      
+      if (this.view) {
+         s+=this.view.draw();
+         }
       return s;
    }
 
-   protected drawChildrenBegin():string {
-      let s:string='';
-      s+=this.drawDebug('drawChildrenBegin');
-      return s;
-   }
-   
-   protected drawChildrenEnd():string {
-      let s:string='';
-      s+=this.drawDebug('drawChildrenEnd');
-      return s;
-   }
 
-   protected drawChildren():string {
-      let s:string='';
-      s+=this.drawChildrenBegin();
-      let thisView:ItmView=this;
-      s+=this.drawDebug('drawChildren');
-     
-      this.children.forEach(function(view:ItmView){
-         s+=thisView.drawDebug('drawChild id=[{0}]'.format(view.id));
-         s+=view.draw();
-      });
-      s+=this.drawChildrenEnd();
-      return s;
-   }
    /**
     * draw entire view
     * @param s - draw string stream
     * @return - returns begin string stream 
     */
-   protected draw():string {
+   public draw():string {
       let s:string='';
       s+=this.drawBegin();
       s+=this.drawBody();

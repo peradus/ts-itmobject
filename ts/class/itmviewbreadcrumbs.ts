@@ -1,8 +1,9 @@
 ///<reference path='./itmview.ts'/>
+///<reference path='./itmviewchildren.ts'/>
 ///<reference path='./itmviewbreadcrumb.ts'/>
 // https://stackoverflow.com/questions/14742194/declaring-an-htmlelement-typescript
 
-class ItmViewBreadCrumbs extends ItmView  {
+class ItmViewBreadCrumbs extends ItmViewChildren  {
 
    protected breadCrumbs:Array<string>=[];
    
@@ -35,7 +36,6 @@ class ItmViewBreadCrumbs extends ItmView  {
 
    protected drawChildrenBegin():string {
       let s:string='';
-      s+=super.drawChildrenBegin();
       s+=`<ol class="breadcrumb">
       `;
       return s;
@@ -45,7 +45,6 @@ class ItmViewBreadCrumbs extends ItmView  {
       let s:string='';
       s+=`</ol>
       `;
-      s+=super.drawChildrenEnd();
       return s;
    }
 
@@ -57,8 +56,6 @@ class ItmViewBreadCrumbs extends ItmView  {
          thisView.addChild(breadCrumb);
       })
    }
-
-   
 
 }
 
