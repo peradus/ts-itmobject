@@ -9,6 +9,13 @@ class ItmView  {
    protected _parent:ItmView;
    protected _view:ItmView | undefined;
 
+   protected _element:HTMLElement | undefined=undefined;
+   protected _elementdiv:HTMLElement | undefined=undefined;
+   
+   protected _timerToken:number=0;
+
+   protected _autoRefreshInterval=0;
+      
    get debug():boolean    {
       return this._debug;
    }
@@ -45,13 +52,29 @@ class ItmView  {
       this._view=p;
    }
    
+   set autoRefreshMs(intervalMs:number) {
+      this._autoRefreshInterval=intervalMs;
+      if (intervalMs==0){
+         clearTimeout(this._timerToken);
+      }
+      else {
+         this._timerToken=setInterval(()=>this.autoRefresh(),intervalMs);
+      }
+   }
+
    /** construct an ItmView   
     */
-   constructor () {
+   constructor (element:HTMLElement | undefined=undefined) {
       this._id=this.uniqueID();
       this._parent=this;
       this._view=undefined;
-      
+
+      if (element){
+         this._element=element;
+         this._elementdiv=document.createElement("div");
+         this._elementdiv.innerHTML=this.draw();
+         this._element.appendChild(this._elementdiv);
+      }
    }
   
    /**
@@ -119,8 +142,6 @@ class ItmView  {
          }
       return s;
    }
-
-
    /**
     * draw entire view
     * @param s - draw string stream
@@ -134,13 +155,30 @@ class ItmView  {
       return s;
    }
 
-   protected redraw() {
-      let el:HTMLElement | null;
-      el=document.getElementById(this.id);
-      if (el) {
-         el.outerHTML=this.draw();
-      }
+   /**
+    * rebuild view, after this redraw may happen
+    * @return - true/false if redraw is needed
+    */
+   protected rebuild():boolean {
+      // do nothing
+      return true;
+   }
 
+   /**
+    * redraw entire view, rebuild view before redrawing
+    */
+   protected redraw() {
+      if (this.rebuild()) {
+         let el:HTMLElement | null;
+         el=document.getElementById(this.id);
+         if (el) {
+            el.outerHTML=this.draw();
+         }
+      }
+   }
+
+   protected autoRefresh() {
+      this.redraw();
    }
 }
 

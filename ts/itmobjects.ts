@@ -48,6 +48,5 @@ window.onload = () => {
       breadcrumbs=new ItmViewBreadCrumbs();
       itmviewchildren.addChild(breadcrumbs);
       itmview.view=itmviewchildren;
-      itmview.start();
    }
 };

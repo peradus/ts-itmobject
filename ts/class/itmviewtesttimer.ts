@@ -1,10 +1,7 @@
 ///<reference path='./itmview.ts'/>
-///<reference path='./itmviewelement.ts'/>
 // https://stackoverflow.com/questions/14742194/declaring-an-htmlelement-typescript
 
-class ItmViewTestTimer extends ItmViewElement  {
-
-   protected timerToken:number;
+class ItmViewTestTimer extends ItmView  {
 
    /** construct an ItmView from an ItmObject   
     * @param itmObject - from which itmObject
@@ -12,8 +9,7 @@ class ItmViewTestTimer extends ItmViewElement  {
     */
    constructor (element:HTMLElement) {
       super(element);
-      
-      this.timerToken=0;
+      this.autoRefreshMs=1000;
    }
 
    protected drawBody():string {
@@ -22,15 +18,6 @@ class ItmViewTestTimer extends ItmViewElement  {
       s+=super.drawBody();
       return s;
    }
-
-   public start() {
-      this.timerToken=setInterval(()=>this.redraw(),1000);
-   }
-
-   public stop() {
-      clearTimeout(this.timerToken);
-   }
-
 }
 
 

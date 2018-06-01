@@ -14,7 +14,7 @@ class ItmViewBreadCrumbs extends ItmViewChildren  {
    constructor () {
       super();
       this.breadCrumbs=['abc','def','ghi','jkl','mno','pqr','stu','vwx','yz'];
-      this.rebuildBreadCrumbs();
+      this.rebuild();
    }
 
    protected drawBegin():string {
@@ -48,13 +48,14 @@ class ItmViewBreadCrumbs extends ItmViewChildren  {
       return s;
    }
 
-   protected rebuildBreadCrumbs() {
+   protected rebuild():boolean {
       this.removeChildren();
       let thisView=this;
       this.breadCrumbs.forEach(function(name){
          let breadCrumb=new ItmViewBreadCrumb(name);
          thisView.addChild(breadCrumb);
       })
+      return true;
    }
 
 }
