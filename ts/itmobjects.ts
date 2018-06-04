@@ -30,23 +30,18 @@ let method2=new ItmObjectMethod('start');
 method2.parameters.set(prop1);
 obj.methods.set(method2);
 
-var itmview:ItmViewTestTimer;
-var itmviewchildren:ItmViewChildren;
-var breadcrumbs:ItmViewBreadCrumbs;
+/* ITMVIEW
+ */
+var itmmainview:ItmView = new ItmView("main");
 
+var clock:ItmViewTestTimer = new ItmViewTestTimer();
+      
+var breadcrumbs:ItmViewBreadCrumbs = new ItmViewBreadCrumbs();
 
+itmmainview.addView(breadcrumbs);
+itmmainview.addView(clock);
 
 // INIT CODE AFTER DOCUMENT LOAD
 window.onload = () => {
-   var el=document.getElementById('main');
-
-   if (el) {
-      // itmview=new ItmViewTestTimer(el,obj,'');
-      itmview=new ItmViewTestTimer(el);
-      itmviewchildren=new ItmViewChildren();
-
-      breadcrumbs=new ItmViewBreadCrumbs();
-      itmviewchildren.addChild(breadcrumbs);
-      itmview.view=itmviewchildren;
-   }
+   itmmainview.redraw();
 };

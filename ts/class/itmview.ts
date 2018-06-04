@@ -7,11 +7,8 @@ class ItmView  {
 
    protected _id:string="";
    protected _parent:ItmView;
-   protected _view:ItmView | undefined;
+   protected _viewitems:Array<ItmView>=[];
 
-   protected _element:HTMLElement | undefined=undefined;
-   protected _elementdiv:HTMLElement | undefined=undefined;
-   
    protected _timerToken:number=0;
 
    protected _autoRefreshInterval=0;
@@ -24,6 +21,10 @@ class ItmView  {
       this._debug=enable;
    }
 
+   get element():HTMLElement | null {
+      return document.getElementById(this._id);
+   }
+
    get drawID():boolean    {
       return this._drawID;
    }
@@ -32,6 +33,10 @@ class ItmView  {
       this._drawID=enable;
    }
    
+   set id(newid:string)    {
+      this._id=newid;
+   }
+
    get id():string    {
       return this._id;
    }
@@ -44,13 +49,10 @@ class ItmView  {
       this._parent=p;
    }
    
-   get view():ItmView | undefined   {
-      return this._view;
+   get viewItems():Array<ItmView>   {
+      return this._viewitems;
    }
 
-   set view(p:ItmView | undefined)    {
-      this._view=p;
-   }
    
    set autoRefreshMs(intervalMs:number) {
       this._autoRefreshInterval=intervalMs;
@@ -64,17 +66,16 @@ class ItmView  {
 
    /** construct an ItmView   
     */
-   constructor (element:HTMLElement | undefined=undefined) {
-      this._id=this.uniqueID();
-      this._parent=this;
-      this._view=undefined;
-
-      if (element){
-         this._element=element;
-         this._elementdiv=document.createElement("div");
-         this._elementdiv.innerHTML=this.draw();
-         this._element.appendChild(this._elementdiv);
+   constructor (id:string="") {
+      if (id=="") {
+         this._id=this.uniqueID();
       }
+      else {
+         this._id=id;
+      }
+      
+      this._parent=this;
+      this._viewitems=[];
    }
   
    /**
@@ -85,6 +86,41 @@ class ItmView  {
    protected uniqueID(addText:string='') {
       return Date.now().toString(36)+Math.random().toString(36);
    }
+
+   public addView(view:ItmView):ItmView {
+      view.parent=this;
+      this._viewitems.push(view);
+      return view;
+   }
+
+   protected getViewIndex(id:string):number {
+      for(let i=0; i++; i<this._viewitems.length){
+         let view=this._viewitems[i];
+         if (view.id==id) return i;
+      }   
+      return -1;
+   }
+   
+   protected removeViewId(id:string):ItmView | null{
+      let idx:number;
+      idx=this.getViewIndex(id);
+      if (idx !== -1) {
+         let view=this._viewitems[idx];
+         view.parent=view;
+         delete this._viewitems[idx];
+         return view;
+      }      
+      return null;
+   }
+   
+   protected removeViews() {
+      while (this._viewitems.length > 0) {
+         let view:ItmView;
+         view=this._viewitems[0];         
+         this.removeViewId(view.id);
+      }
+   }
+
 
    /**
     * @param s - debugging string
@@ -128,6 +164,33 @@ class ItmView  {
       return s;
    }
 
+   protected drawViewItemsBegin():string {
+      let s:string='';
+      return s;
+   }
+
+   protected drawViewItemsEnd():string {
+      let s:string='';
+      return s;
+   }
+
+   protected drawViewItems():string {
+      let s:string='';
+      let thisView=this;
+      s+=this.drawDebug('drawViewItems');
+
+      s+=this.drawViewItemsBegin();
+
+      this._viewitems.forEach(function(view:ItmView){
+         s+=thisView.drawDebug('drawChild id=[{0}]'.format(view.id));
+         s+=view.draw();
+      });
+      
+      s+=this.drawViewItemsEnd();
+
+      return s;
+   }
+
    /**
     * draw main body of view
     * @param s - draw string stream
@@ -137,9 +200,8 @@ class ItmView  {
       let s:string='';
       s+=this.drawDebug('drawBody');
       
-      if (this.view) {
-         s+=this.view.draw();
-         }
+      s+=this.drawViewItems();
+
       return s;
    }
    /**
@@ -167,12 +229,10 @@ class ItmView  {
    /**
     * redraw entire view, rebuild view before redrawing
     */
-   protected redraw() {
+   public redraw() {
       if (this.rebuild()) {
-         let el:HTMLElement | null;
-         el=document.getElementById(this.id);
-         if (el) {
-            el.outerHTML=this.draw();
+         if (this.element) {
+            this.element.outerHTML=this.draw();
          }
       }
    }

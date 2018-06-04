@@ -7,8 +7,8 @@ class ItmViewTestTimer extends ItmView  {
     * @param itmObject - from which itmObject
     * @param selectedInstance - from which instance
     */
-   constructor (element:HTMLElement) {
-      super(element);
+   constructor (id:string="") {
+      super(id);
       this.autoRefreshMs=1000;
    }
 

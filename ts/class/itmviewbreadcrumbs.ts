@@ -1,9 +1,8 @@
 ///<reference path='./itmview.ts'/>
-///<reference path='./itmviewchildren.ts'/>
 ///<reference path='./itmviewbreadcrumb.ts'/>
 // https://stackoverflow.com/questions/14742194/declaring-an-htmlelement-typescript
 
-class ItmViewBreadCrumbs extends ItmViewChildren  {
+class ItmViewBreadCrumbs extends ItmView  {
 
    protected breadCrumbs:Array<string>=[];
    
@@ -11,8 +10,8 @@ class ItmViewBreadCrumbs extends ItmViewChildren  {
     * @param itmObject - from which itmObject
     * @param selectedInstance - from which instance
     */
-   constructor () {
-      super();
+      constructor (id:string="") {
+      super(id);
       this.breadCrumbs=['abc','def','ghi','jkl','mno','pqr','stu','vwx','yz'];
       this.rebuild();
    }
@@ -34,14 +33,14 @@ class ItmViewBreadCrumbs extends ItmViewChildren  {
       return s;
    }
 
-   protected drawChildrenBegin():string {
+   protected drawViewItemsBegin():string {
       let s:string='';
       s+=`<ol class="breadcrumb">
       `;
       return s;
    }
 
-   protected drawChildrenEnd():string {
+   protected drawViewItemsEnd():string {
       let s:string='';
       s+=`</ol>
       `;
@@ -49,12 +48,12 @@ class ItmViewBreadCrumbs extends ItmViewChildren  {
    }
 
    protected rebuild():boolean {
-      this.removeChildren();
+      this.removeViews();
       let thisView=this;
       this.breadCrumbs.forEach(function(name){
          let breadCrumb=new ItmViewBreadCrumb(name);
-         thisView.addChild(breadCrumb);
-      })
+         thisView.addView(breadCrumb);
+      });
       return true;
    }
 
