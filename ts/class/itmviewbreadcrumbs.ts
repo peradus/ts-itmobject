@@ -10,8 +10,8 @@ class ItmViewBreadCrumbs extends ItmView  {
     * @param itmObject - from which itmObject
     * @param selectedInstance - from which instance
     */
-      constructor (id:string="") {
-      super(id);
+   constructor () {
+      super();
       this.breadCrumbs=['abc','def','ghi','jkl','mno','pqr','stu','vwx','yz'];
       this.rebuild();
    }
@@ -51,7 +51,8 @@ class ItmViewBreadCrumbs extends ItmView  {
       this.removeViews();
       let thisView=this;
       this.breadCrumbs.forEach(function(name){
-         let breadCrumb=new ItmViewBreadCrumb(name);
+         let breadCrumb=new ItmViewBreadCrumb();
+         breadCrumb.name=name;
          thisView.addView(breadCrumb);
       });
       return true;

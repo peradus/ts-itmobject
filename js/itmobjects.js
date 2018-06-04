@@ -704,20 +704,14 @@ if (!String.prototype.format) {
 var ItmView = /** @class */ (function () {
     /** construct an ItmView
      */
-    function ItmView(id) {
-        if (id === void 0) { id = ""; }
+    function ItmView() {
         this._debug = false;
         this._drawID = true;
         this._id = "";
         this._viewitems = [];
         this._timerToken = 0;
         this._autoRefreshInterval = 0;
-        if (id == "") {
-            this._id = this.uniqueID();
-        }
-        else {
-            this._id = id;
-        }
+        this._id = this.uniqueID();
         this._parent = this;
         this._viewitems = [];
     }
@@ -942,20 +936,37 @@ var ItmViewBreadCrumb = /** @class */ (function (_super) {
      * @param itmObject - from which itmObject
      * @param selectedInstance - from which instance
      */
-    function ItmViewBreadCrumb(name) {
+    function ItmViewBreadCrumb() {
         var _this = _super.call(this) || this;
-        _this.name = name;
-        _this.active = true;
+        _this._name = "breadcrumb";
+        _this._active = true;
         _this.drawID = false;
         return _this;
     }
+    Object.defineProperty(ItmViewBreadCrumb.prototype, "name", {
+        /**
+         * Get name for this breadcrumb
+         */
+        get: function () {
+            return this._name;
+        },
+        /**
+         * Set name for this breadcrumb
+         * @param newname:string - new name for breadcrumb
+         */
+        set: function (newname) {
+            this._name = newname;
+        },
+        enumerable: true,
+        configurable: true
+    });
     /* <li class="breadcrumb-item"><a href="#">Home</a></li>
     <li class="breadcrumb-item"><a href="#">Library</a></li>
     <li class="breadcrumb-item active" aria-current="page">Data</li>
     */
     ItmViewBreadCrumb.prototype.drawBody = function () {
         var s = '';
-        s += "<li class=\"breadcrumb-item\"><a href=\"#\">{0}</a></li>\n   ".format(this.name);
+        s += "<li class=\"breadcrumb-item\"><a href=\"#\">{0}</a></li>\n   ".format(this._name);
         return s;
     };
     return ItmViewBreadCrumb;
@@ -969,9 +980,8 @@ var ItmViewBreadCrumbs = /** @class */ (function (_super) {
      * @param itmObject - from which itmObject
      * @param selectedInstance - from which instance
      */
-    function ItmViewBreadCrumbs(id) {
-        if (id === void 0) { id = ""; }
-        var _this = _super.call(this, id) || this;
+    function ItmViewBreadCrumbs() {
+        var _this = _super.call(this) || this;
         _this.breadCrumbs = [];
         _this.breadCrumbs = ['abc', 'def', 'ghi', 'jkl', 'mno', 'pqr', 'stu', 'vwx', 'yz'];
         _this.rebuild();
@@ -1003,7 +1013,8 @@ var ItmViewBreadCrumbs = /** @class */ (function (_super) {
         this.removeViews();
         var thisView = this;
         this.breadCrumbs.forEach(function (name) {
-            var breadCrumb = new ItmViewBreadCrumb(name);
+            var breadCrumb = new ItmViewBreadCrumb();
+            breadCrumb.name = name;
             thisView.addView(breadCrumb);
         });
         return true;
@@ -1012,30 +1023,29 @@ var ItmViewBreadCrumbs = /** @class */ (function (_super) {
 }(ItmView));
 ///<reference path='./itmview.ts'/>
 // https://stackoverflow.com/questions/14742194/declaring-an-htmlelement-typescript
-var ItmViewTestTimer = /** @class */ (function (_super) {
-    __extends(ItmViewTestTimer, _super);
+var ItmViewTestAutoRefresh = /** @class */ (function (_super) {
+    __extends(ItmViewTestAutoRefresh, _super);
     /** construct an ItmView from an ItmObject
      * @param itmObject - from which itmObject
      * @param selectedInstance - from which instance
      */
-    function ItmViewTestTimer(id) {
-        if (id === void 0) { id = ""; }
-        var _this = _super.call(this, id) || this;
+    function ItmViewTestAutoRefresh() {
+        var _this = _super.call(this) || this;
         _this.autoRefreshMs = 1000;
         return _this;
     }
-    ItmViewTestTimer.prototype.drawBody = function () {
+    ItmViewTestAutoRefresh.prototype.drawBody = function () {
         var s = '';
         s += new Date().toUTCString();
         s += _super.prototype.drawBody.call(this);
         return s;
     };
-    return ItmViewTestTimer;
+    return ItmViewTestAutoRefresh;
 }(ItmView));
 ///<reference path='./class/itmobject.ts'/>
 ///<reference path='./class/itmview.ts'/>
 ///<reference path='./class/itmviewbreadcrumbs.ts'/>
-///<reference path='./class/itmviewtesttimer.ts'/>
+///<reference path='./class/itmviewtestautorefresh.ts'/>
 // ******************
 // MAIN CODE START
 //
@@ -1058,7 +1068,7 @@ obj.methods.set(method2);
 /* ITMVIEW
  */
 var itmmainview = new ItmView("main");
-var clock = new ItmViewTestTimer();
+var clock = new ItmViewTestAutoRefresh();
 var breadcrumbs = new ItmViewBreadCrumbs();
 itmmainview.addView(breadcrumbs);
 itmmainview.addView(clock);
@@ -1066,73 +1076,18 @@ itmmainview.addView(clock);
 window.onload = function () {
     itmmainview.redraw();
 };
-///<reference path='./itmobject.ts'/>
-///<reference path='./itmview.ts'/>
-///<reference path='./itmhelperfunctions.ts'/>
-// https://stackoverflow.com/questions/14742194/declaring-an-htmlelement-typescript
-var ItmViewChildren = /** @class */ (function (_super) {
-    __extends(ItmViewChildren, _super);
-    /** construct an ItmView
-     */
-    function ItmViewChildren() {
-        var _this = _super.call(this) || this;
-        _this.children = [];
-        _this.children = [];
-        return _this;
-    }
-    ItmViewChildren.prototype.addChild = function (view) {
-        view.parent = this;
-        this.children.push(view);
-        return view;
-    };
-    ItmViewChildren.prototype.getChildIdIndex = function (id) {
-        for (var i = 0; i++; i < this.children.length) {
-            var view = this.children[i];
-            if (view.id == id)
-                return i;
-        }
-        return -1;
-    };
-    ItmViewChildren.prototype.removeChildId = function (id) {
-        var idx;
-        idx = this.getChildIdIndex(id);
-        if (idx !== -1) {
-            var view = this.children[idx];
-            view.parent = view;
-            delete this.children[idx];
-            return view;
-        }
-        return null;
-    };
-    ItmViewChildren.prototype.removeChildren = function () {
-        while (this.children.length > 0) {
-            var view = void 0;
-            view = this.children[0];
-            this.removeChildId(view.id);
-        }
-    };
-    ItmViewChildren.prototype.drawChildrenBegin = function () {
-        var s = '';
-        return s;
-    };
-    ItmViewChildren.prototype.drawChildrenEnd = function () {
-        var s = '';
-        return s;
-    };
-    ItmViewChildren.prototype.drawBody = function () {
-        var s = '';
-        var thisView = this;
-        s += this.drawDebug('drawChildren');
-        s += this.drawChildrenBegin();
-        this.children.forEach(function (view) {
-            s += thisView.drawDebug('drawChild id=[{0}]'.format(view.id));
-            s += view.draw();
-        });
-        s += this.drawChildrenEnd();
-        return s;
-    };
-    return ItmViewChildren;
-}(ItmView));
+/* ITMVIEW
+ */
+var itmmainview = new ItmView();
+itmmainview.id = "main";
+var clock = new ItmViewTestAutoRefresh();
+var breadcrumbs = new ItmViewBreadCrumbs();
+itmmainview.addView(breadcrumbs);
+itmmainview.addView(clock);
+// INIT CODE AFTER DOCUMENT LOAD
+window.onload = function () {
+    itmmainview.redraw();
+};
 ///<reference path='./itmobject.ts'/>
 var TestItmObject = /** @class */ (function (_super) {
     __extends(TestItmObject, _super);

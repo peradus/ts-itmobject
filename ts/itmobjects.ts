@@ -1,7 +1,7 @@
 ///<reference path='./class/itmobject.ts'/>
 ///<reference path='./class/itmview.ts'/>
 ///<reference path='./class/itmviewbreadcrumbs.ts'/>
-///<reference path='./class/itmviewtesttimer.ts'/>
+///<reference path='./class/itmviewtestautorefresh.ts'/>
 
 // ******************
 // MAIN CODE START
@@ -34,7 +34,7 @@ obj.methods.set(method2);
  */
 var itmmainview:ItmView = new ItmView("main");
 
-var clock:ItmViewTestTimer = new ItmViewTestTimer();
+var clock:ItmViewTestAutoRefresh = new ItmViewTestAutoRefresh();
       
 var breadcrumbs:ItmViewBreadCrumbs = new ItmViewBreadCrumbs();
 

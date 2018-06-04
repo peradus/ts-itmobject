@@ -66,13 +66,8 @@ class ItmView  {
 
    /** construct an ItmView   
     */
-   constructor (id:string="") {
-      if (id=="") {
-         this._id=this.uniqueID();
-      }
-      else {
-         this._id=id;
-      }
+   constructor () {
+      this._id=this.uniqueID();
       
       this._parent=this;
       this._viewitems=[];
