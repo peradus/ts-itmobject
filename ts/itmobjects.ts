@@ -14,7 +14,6 @@ let obj=new ItmObject('test');
 let testobj=new ItmObject('test123');
 obj.instances.set(testobj);
 
-
 let prop1=new ItmObjectProperty("HOST","123");
 obj.properties.set(prop1);
 
@@ -30,18 +29,3 @@ let method2=new ItmObjectMethod('start');
 method2.parameters.set(prop1);
 obj.methods.set(method2);
 
-/* ITMVIEW
- */
-var itmmainview:ItmView = new ItmView("main");
-
-var clock:ItmViewTestAutoRefresh = new ItmViewTestAutoRefresh();
-      
-var breadcrumbs:ItmViewBreadCrumbs = new ItmViewBreadCrumbs();
-
-itmmainview.addView(breadcrumbs);
-itmmainview.addView(clock);
-
-// INIT CODE AFTER DOCUMENT LOAD
-window.onload = () => {
-   itmmainview.redraw();
-};

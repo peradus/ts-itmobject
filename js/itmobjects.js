@@ -1067,17 +1067,6 @@ method2.parameters.set(prop1);
 obj.methods.set(method2);
 /* ITMVIEW
  */
-var itmmainview = new ItmView("main");
-var clock = new ItmViewTestAutoRefresh();
-var breadcrumbs = new ItmViewBreadCrumbs();
-itmmainview.addView(breadcrumbs);
-itmmainview.addView(clock);
-// INIT CODE AFTER DOCUMENT LOAD
-window.onload = function () {
-    itmmainview.redraw();
-};
-/* ITMVIEW
- */
 var itmmainview = new ItmView();
 itmmainview.id = "main";
 var clock = new ItmViewTestAutoRefresh();
