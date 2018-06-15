@@ -66,8 +66,13 @@ class ItmView  {
 
    /** construct an ItmView   
     */
-   constructor () {
-      this._id=this.uniqueID();
+   constructor (id:string="") {
+      if (id == "") {
+         this._id=this.uniqueID();
+      }
+      else {
+         this._id=id;
+      }
       
       this._parent=this;
       this._viewitems=[];
@@ -115,7 +120,6 @@ class ItmView  {
          this.removeViewId(view.id);
       }
    }
-
 
    /**
     * @param s - debugging string

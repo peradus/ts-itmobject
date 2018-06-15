@@ -704,14 +704,20 @@ if (!String.prototype.format) {
 var ItmView = /** @class */ (function () {
     /** construct an ItmView
      */
-    function ItmView() {
+    function ItmView(id) {
+        if (id === void 0) { id = ""; }
         this._debug = false;
         this._drawID = true;
         this._id = "";
         this._viewitems = [];
         this._timerToken = 0;
         this._autoRefreshInterval = 0;
-        this._id = this.uniqueID();
+        if (id == "") {
+            this._id = this.uniqueID();
+        }
+        else {
+            this._id = id;
+        }
         this._parent = this;
         this._viewitems = [];
     }
@@ -1067,15 +1073,14 @@ method2.parameters.set(prop1);
 obj.methods.set(method2);
 /* ITMVIEW
  */
-var itmmainview = new ItmView();
-itmmainview.id = "main";
+var main = new ItmView("main");
 var clock = new ItmViewTestAutoRefresh();
 var breadcrumbs = new ItmViewBreadCrumbs();
-itmmainview.addView(breadcrumbs);
-itmmainview.addView(clock);
+main.addView(breadcrumbs);
+main.addView(clock);
 // INIT CODE AFTER DOCUMENT LOAD
 window.onload = function () {
-    itmmainview.redraw();
+    main.redraw();
 };
 ///<reference path='./itmobject.ts'/>
 var TestItmObject = /** @class */ (function (_super) {
