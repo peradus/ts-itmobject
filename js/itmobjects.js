@@ -942,9 +942,10 @@ var ItmViewBreadCrumb = /** @class */ (function (_super) {
      * @param itmObject - from which itmObject
      * @param selectedInstance - from which instance
      */
-    function ItmViewBreadCrumb() {
+    function ItmViewBreadCrumb(name, target) {
         var _this = _super.call(this) || this;
-        _this._name = "breadcrumb";
+        _this._name = name;
+        _this._target = target;
         _this._active = true;
         _this.drawID = false;
         return _this;
@@ -972,7 +973,7 @@ var ItmViewBreadCrumb = /** @class */ (function (_super) {
     */
     ItmViewBreadCrumb.prototype.drawBody = function () {
         var s = '';
-        s += "<li class=\"breadcrumb-item\"><a href=\"#\">{0}</a></li>\n   ".format(this._name);
+        s += "<li class=\"breadcrumb-item\"><a href=\"{1}\">{0}</a></li>\n   ".format(this._name, this._target);
         return s;
     };
     return ItmViewBreadCrumb;
@@ -988,11 +989,21 @@ var ItmViewBreadCrumbs = /** @class */ (function (_super) {
      */
     function ItmViewBreadCrumbs() {
         var _this = _super.call(this) || this;
-        _this.breadCrumbs = [];
-        _this.breadCrumbs = ['abc', 'def', 'ghi', 'jkl', 'mno', 'pqr', 'stu', 'vwx', 'yz'];
-        _this.rebuild();
+        _this._breadCrumbs = [];
+        _this._breadCrumbs = [];
         return _this;
     }
+    Object.defineProperty(ItmViewBreadCrumbs.prototype, "breadCrumbs", {
+        get: function () {
+            return this._breadCrumbs;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    ItmViewBreadCrumbs.prototype.setBreadCrumbs = function (crumbs) {
+        this._breadCrumbs = crumbs;
+        this.rebuild();
+    };
     ItmViewBreadCrumbs.prototype.drawBegin = function () {
         var s = '';
         s += _super.prototype.drawBegin.call(this);
@@ -1018,10 +1029,17 @@ var ItmViewBreadCrumbs = /** @class */ (function (_super) {
     ItmViewBreadCrumbs.prototype.rebuild = function () {
         this.removeViews();
         var thisView = this;
+        var target = "";
+        // add home breadcrumb
+        thisView.addView(
+        // add breadcrumb and target
+        new ItmViewBreadCrumb("Home", target));
         this.breadCrumbs.forEach(function (name) {
-            var breadCrumb = new ItmViewBreadCrumb();
-            breadCrumb.name = name;
-            thisView.addView(breadCrumb);
+            target = target + name;
+            thisView.addView(
+            // add breadcrumb and target
+            new ItmViewBreadCrumb(name, target));
+            target = target + "/";
         });
         return true;
     };
@@ -1071,15 +1089,72 @@ obj.methods.set(method);
 var method2 = new ItmObjectMethod('start');
 method2.parameters.set(prop1);
 obj.methods.set(method2);
+///<reference path='./itmview.ts'/>
+///<reference path='./itmviewbreadcrumbs.ts'/>
+// https://stackoverflow.com/questions/14742194/declaring-an-htmlelement-typescript
+var ItmViewItmObjectSelector = /** @class */ (function (_super) {
+    __extends(ItmViewItmObjectSelector, _super);
+    function ItmViewItmObjectSelector() {
+        var _this = _super.call(this) || this;
+        /** construct an ItmView from an ItmObject
+         */
+        _this._selectedItmObject = "";
+        return _this;
+    }
+    Object.defineProperty(ItmViewItmObjectSelector.prototype, "selectedItmObject", {
+        get: function () {
+            return this._selectedItmObject;
+        },
+        /**
+         * select ITMObject and update breadcrumbs
+         * @param itmobject:string = '/a/b/c/d/e';
+         */
+        set: function (itmobject) {
+            this._selectedItmObject = itmobject;
+            // update breadcrumbs
+            var crumbs = [];
+            if (itmobject != "") {
+                crumbs = itmobject.split('/');
+            }
+            this.setBreadCrumbs(crumbs);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return ItmViewItmObjectSelector;
+}(ItmViewBreadCrumbs));
+///<reference path='./itmview.ts'/>
+///<reference path='./itmviewitmobjectselector.ts'/>
+///<reference path='./itmviewtestautorefresh.ts'/>
+// https://stackoverflow.com/questions/14742194/declaring-an-htmlelement-typescript
+var ItmViewMain = /** @class */ (function (_super) {
+    __extends(ItmViewMain, _super);
+    /** construct main Itmclient ItmView
+     */
+    function ItmViewMain() {
+        var _this = _super.call(this, "main") || this;
+        _this._itmObjectSelector = new ItmViewItmObjectSelector();
+        _this._clock = new ItmViewTestAutoRefresh();
+        _this.addView(_this._itmObjectSelector);
+        _this.addView(_this._clock);
+        return _this;
+    }
+    Object.defineProperty(ItmViewMain.prototype, "itmObjectSelector", {
+        get: function () {
+            return this._itmObjectSelector;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return ItmViewMain;
+}(ItmView));
+///<reference path='./class/itmviewmain.ts'/>
 /* ITMVIEW
  */
-var main = new ItmView("main");
-var clock = new ItmViewTestAutoRefresh();
-var breadcrumbs = new ItmViewBreadCrumbs();
-main.addView(breadcrumbs);
-main.addView(clock);
+var main = new ItmViewMain();
 // INIT CODE AFTER DOCUMENT LOAD
 window.onload = function () {
+    main.itmObjectSelector.selectedItmObject = "a/b/c/d/e/f";
     main.redraw();
 };
 ///<reference path='./itmobject.ts'/>

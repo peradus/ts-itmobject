@@ -1,13 +1,10 @@
+///<reference path='./class/itmviewmain.ts'/>
 /* ITMVIEW
  */
-var main:ItmView = new ItmView("main");
-var clock:ItmViewTestAutoRefresh = new ItmViewTestAutoRefresh();
-var breadcrumbs:ItmViewBreadCrumbs = new ItmViewBreadCrumbs();
-
-main.addView(breadcrumbs);
-main.addView(clock);
+var main:ItmViewMain = new ItmViewMain();
 
 // INIT CODE AFTER DOCUMENT LOAD
 window.onload = () => {
+   main.itmObjectSelector.selectedItmObject="a/b/c/d/e/f";
    main.redraw();
 };

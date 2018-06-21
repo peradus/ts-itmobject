@@ -4,6 +4,7 @@
 class ItmViewBreadCrumb extends ItmView  {
 
    protected _name:string;
+   protected _target:string;
    protected _active:boolean;
    
    /**
@@ -25,9 +26,10 @@ class ItmViewBreadCrumb extends ItmView  {
     * @param itmObject - from which itmObject
     * @param selectedInstance - from which instance
     */
-   constructor ()  {
+   constructor (name:string, target:string)  {
       super();
-      this._name="breadcrumb";
+      this._name=name;
+      this._target=target;
       this._active=true;
       this.drawID=false;
    }
@@ -38,8 +40,8 @@ class ItmViewBreadCrumb extends ItmView  {
    */
   protected drawBody():string {
    let s:string='';
-   s+=`<li class="breadcrumb-item"><a href="#">{0}</a></li>
-   `.format(this._name);
+   s+=`<li class="breadcrumb-item"><a href="{1}">{0}</a></li>
+   `.format(this._name,this._target);
    return s;
 }
 }

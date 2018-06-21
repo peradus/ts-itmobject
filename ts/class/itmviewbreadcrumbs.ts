@@ -4,7 +4,7 @@
 
 class ItmViewBreadCrumbs extends ItmView  {
 
-   protected breadCrumbs:Array<string>=[];
+   protected _breadCrumbs:Array<string>=[];
    
    /** construct an ItmView from an ItmObject   
     * @param itmObject - from which itmObject
@@ -12,7 +12,15 @@ class ItmViewBreadCrumbs extends ItmView  {
     */
    constructor () {
       super();
-      this.breadCrumbs=['abc','def','ghi','jkl','mno','pqr','stu','vwx','yz'];
+      this._breadCrumbs=[];
+    }
+
+   get breadCrumbs():string[] {
+      return this._breadCrumbs;
+   }
+
+   protected setBreadCrumbs(crumbs:string[]){
+      this._breadCrumbs=crumbs;
       this.rebuild();
    }
 
@@ -50,10 +58,20 @@ class ItmViewBreadCrumbs extends ItmView  {
    protected rebuild():boolean {
       this.removeViews();
       let thisView=this;
+      let target:string="";
+      // add home breadcrumb
+      thisView.addView(
+         // add breadcrumb and target
+         new ItmViewBreadCrumb("Home",target)
+      );
+
       this.breadCrumbs.forEach(function(name){
-         let breadCrumb=new ItmViewBreadCrumb();
-         breadCrumb.name=name;
-         thisView.addView(breadCrumb);
+         target=target+name;
+         thisView.addView(
+            // add breadcrumb and target
+            new ItmViewBreadCrumb(name,target)
+         );
+         target=target+"/";
       });
       return true;
    }
