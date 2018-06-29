@@ -217,6 +217,25 @@ class ItmView  {
    }
 
    /**
+    * setup All Event Handlers for current and all child views, this function triggered after redraw to DOM
+    *
+    */
+   protected setupEventHandlers() {
+      this.setupEventHandler();
+      this._viewitems.forEach(function(view:ItmView){
+         view.setupEventHandlers();
+      });
+   }
+
+   /**
+    * setup Event Handler for current view, this function triggered after redraw to DOM
+    *
+    */
+   protected setupEventHandler() {
+      // initial do nothing
+   }
+
+   /**
     * rebuild view, after this redraw may happen
     * @return - true/false if redraw is needed
     */
