@@ -700,11 +700,26 @@ if (!String.prototype.format) {
 }
 ///<reference path='./itmobject.ts'/>
 ///<reference path='./itmhelperfunctions.ts'/>
-// https://stackoverflow.com/questions/14742194/declaring-an-htmlelement-typescript
-var ItmView = /** @class */ (function () {
+var DOM = /** @class */ (function () {
+    function DOM() {
+        this.DOM_obj = document.defaultView;
+    }
+    Object.defineProperty(DOM.prototype, "dom", {
+        /** construct an ItmView
+         */
+        get: function () {
+            return this.DOM_obj;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return DOM;
+}());
+var dom = new DOM();
+var ItmViewDOM = /** @class */ (function () {
     /** construct an ItmView
      */
-    function ItmView(id) {
+    function ItmViewDOM(id) {
         if (id === void 0) { id = ""; }
         this._debug = false;
         this._drawID = true;
@@ -721,7 +736,7 @@ var ItmView = /** @class */ (function () {
         this._parent = this;
         this._viewitems = [];
     }
-    Object.defineProperty(ItmView.prototype, "debug", {
+    Object.defineProperty(ItmViewDOM.prototype, "debug", {
         get: function () {
             return this._debug;
         },
@@ -731,14 +746,14 @@ var ItmView = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(ItmView.prototype, "element", {
+    Object.defineProperty(ItmViewDOM.prototype, "element", {
         get: function () {
             return document.getElementById(this._id);
         },
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(ItmView.prototype, "drawID", {
+    Object.defineProperty(ItmViewDOM.prototype, "drawID", {
         get: function () {
             return this._drawID;
         },
@@ -748,7 +763,7 @@ var ItmView = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(ItmView.prototype, "id", {
+    Object.defineProperty(ItmViewDOM.prototype, "id", {
         get: function () {
             return this._id;
         },
@@ -758,7 +773,7 @@ var ItmView = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(ItmView.prototype, "parent", {
+    Object.defineProperty(ItmViewDOM.prototype, "parent", {
         get: function () {
             return this._parent;
         },
@@ -768,14 +783,14 @@ var ItmView = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(ItmView.prototype, "viewItems", {
+    Object.defineProperty(ItmViewDOM.prototype, "viewItems", {
         get: function () {
             return this._viewitems;
         },
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(ItmView.prototype, "autoRefreshMs", {
+    Object.defineProperty(ItmViewDOM.prototype, "autoRefreshMs", {
         set: function (intervalMs) {
             var _this = this;
             this._autoRefreshInterval = intervalMs;
@@ -794,16 +809,16 @@ var ItmView = /** @class */ (function () {
      * @param addText - add additional text to unique id
      * @return uniqueID - like 'jgl9tsrq0.jttxkhan9s8'
      */
-    ItmView.prototype.uniqueID = function (addText) {
+    ItmViewDOM.prototype.uniqueID = function (addText) {
         if (addText === void 0) { addText = ''; }
         return Date.now().toString(36) + Math.random().toString(36);
     };
-    ItmView.prototype.addView = function (view) {
+    ItmViewDOM.prototype.addView = function (view) {
         view.parent = this;
         this._viewitems.push(view);
         return view;
     };
-    ItmView.prototype.getViewIndex = function (id) {
+    ItmViewDOM.prototype.getViewIndex = function (id) {
         for (var i = 0; i++; i < this._viewitems.length) {
             var view = this._viewitems[i];
             if (view.id == id)
@@ -811,7 +826,7 @@ var ItmView = /** @class */ (function () {
         }
         return -1;
     };
-    ItmView.prototype.removeViewId = function (id) {
+    ItmViewDOM.prototype.removeViewId = function (id) {
         var idx;
         idx = this.getViewIndex(id);
         if (idx !== -1) {
@@ -822,7 +837,7 @@ var ItmView = /** @class */ (function () {
         }
         return null;
     };
-    ItmView.prototype.removeViews = function () {
+    ItmViewDOM.prototype.removeViews = function () {
         while (this._viewitems.length > 0) {
             var view = void 0;
             view = this._viewitems[0];
@@ -833,7 +848,7 @@ var ItmView = /** @class */ (function () {
      * @param s - debugging string
      * @return - returns string is debugging enabled
      */
-    ItmView.prototype.drawDebug = function (s) {
+    ItmViewDOM.prototype.drawDebug = function (s) {
         var rs = '';
         if (this.debug === true) {
             var ds = void 0;
@@ -847,7 +862,7 @@ var ItmView = /** @class */ (function () {
      * @param s - draw string stream
      * @return - returns begin string stream
      */
-    ItmView.prototype.drawBegin = function () {
+    ItmViewDOM.prototype.drawBegin = function () {
         var s = '';
         if (this.drawID) {
             s += "<span id=\"{0}\">".format(this.id);
@@ -860,7 +875,7 @@ var ItmView = /** @class */ (function () {
      * @param s - draw string stream
      * @return - returns begin string stream
      */
-    ItmView.prototype.drawEnd = function () {
+    ItmViewDOM.prototype.drawEnd = function () {
         var s = '';
         s += this.drawDebug('drawEnd');
         if (this.drawID) {
@@ -868,15 +883,15 @@ var ItmView = /** @class */ (function () {
         }
         return s;
     };
-    ItmView.prototype.drawViewItemsBegin = function () {
+    ItmViewDOM.prototype.drawViewItemsBegin = function () {
         var s = '';
         return s;
     };
-    ItmView.prototype.drawViewItemsEnd = function () {
+    ItmViewDOM.prototype.drawViewItemsEnd = function () {
         var s = '';
         return s;
     };
-    ItmView.prototype.drawViewItems = function () {
+    ItmViewDOM.prototype.drawViewItems = function () {
         var s = '';
         var thisView = this;
         s += this.drawDebug('drawViewItems');
@@ -893,7 +908,7 @@ var ItmView = /** @class */ (function () {
      * @param s - draw string stream
      * @return - returns begin string stream
      */
-    ItmView.prototype.drawBody = function () {
+    ItmViewDOM.prototype.drawBody = function () {
         var s = '';
         s += this.drawDebug('drawBody');
         s += this.drawViewItems();
@@ -904,7 +919,7 @@ var ItmView = /** @class */ (function () {
      * @param s - draw string stream
      * @return - returns begin string stream
      */
-    ItmView.prototype.draw = function () {
+    ItmViewDOM.prototype.draw = function () {
         var s = '';
         s += this.drawBegin();
         s += this.drawBody();
@@ -912,27 +927,44 @@ var ItmView = /** @class */ (function () {
         return s;
     };
     /**
+     * setup All Event Handlers for current and all child views, this function triggered after redraw to DOM
+     *
+     */
+    ItmViewDOM.prototype.setupEventHandlers = function () {
+        this.setupEventHandler();
+        this._viewitems.forEach(function (view) {
+            view.setupEventHandlers();
+        });
+    };
+    /**
+     * setup Event Handler for current view, this function triggered after redraw to DOM
+     *
+     */
+    ItmViewDOM.prototype.setupEventHandler = function () {
+        // initial do nothing
+    };
+    /**
      * rebuild view, after this redraw may happen
      * @return - true/false if redraw is needed
      */
-    ItmView.prototype.rebuild = function () {
+    ItmViewDOM.prototype.rebuild = function () {
         // do nothing
         return true;
     };
     /**
      * redraw entire view, rebuild view before redrawing
      */
-    ItmView.prototype.redraw = function () {
+    ItmViewDOM.prototype.redraw = function () {
         if (this.rebuild()) {
             if (this.element) {
                 this.element.outerHTML = this.draw();
             }
         }
     };
-    ItmView.prototype.autoRefresh = function () {
+    ItmViewDOM.prototype.autoRefresh = function () {
         this.redraw();
     };
-    return ItmView;
+    return ItmViewDOM;
 }());
 ///<reference path='./itmview.ts'/>
 // https://stackoverflow.com/questions/14742194/declaring-an-htmlelement-typescript
@@ -1157,6 +1189,265 @@ window.onload = function () {
     main.itmObjectSelector.selectedItmObject = "a/b/c/d/e/f";
     main.redraw();
 };
+///<reference path='./itmobject.ts'/>
+///<reference path='./itmhelperfunctions.ts'/>
+var ItmView = /** @class */ (function () {
+    /** construct an ItmView
+     */
+    function ItmView(id) {
+        if (id === void 0) { id = ""; }
+        this._debug = false;
+        this._drawID = true;
+        this._id = "";
+        this._viewitems = [];
+        this._timerToken = 0;
+        this._autoRefreshInterval = 0;
+        if (id == "") {
+            this._id = this.uniqueID();
+        }
+        else {
+            this._id = id;
+        }
+        this._parent = this;
+        this._viewitems = [];
+    }
+    Object.defineProperty(ItmView.prototype, "debug", {
+        get: function () {
+            return this._debug;
+        },
+        set: function (enable) {
+            this._debug = enable;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ItmView.prototype, "element", {
+        get: function () {
+            var el;
+            el = document.getElementById(this._id);
+            if (!el) {
+                el = document.createElement('div');
+                el.id = this.id;
+                el.view = this;
+            }
+            return el;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ItmView.prototype, "drawID", {
+        get: function () {
+            return this._drawID;
+        },
+        set: function (enable) {
+            this._drawID = enable;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ItmView.prototype, "id", {
+        get: function () {
+            return this._id;
+        },
+        set: function (newid) {
+            this._id = newid;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ItmView.prototype, "parent", {
+        get: function () {
+            return this._parent;
+        },
+        set: function (p) {
+            this._parent = p;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ItmView.prototype, "viewItems", {
+        get: function () {
+            return this._viewitems;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ItmView.prototype, "autoRefreshMs", {
+        set: function (intervalMs) {
+            var _this = this;
+            this._autoRefreshInterval = intervalMs;
+            if (intervalMs == 0) {
+                clearTimeout(this._timerToken);
+            }
+            else {
+                this._timerToken = setInterval(function () { return _this.autoRefresh(); }, intervalMs);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * Generate Unique ID
+     * @param addText - add additional text to unique id
+     * @return uniqueID - like 'jgl9tsrq0.jttxkhan9s8'
+     */
+    ItmView.prototype.uniqueID = function (addText) {
+        if (addText === void 0) { addText = ''; }
+        return Date.now().toString(36) + Math.random().toString(36);
+    };
+    ItmView.prototype.addView = function (view) {
+        view.parent = this;
+        this._viewitems.push(view);
+        return view;
+    };
+    ItmView.prototype.getViewIndex = function (id) {
+        for (var i = 0; i++; i < this._viewitems.length) {
+            var view = this._viewitems[i];
+            if (view.id == id)
+                return i;
+        }
+        return -1;
+    };
+    ItmView.prototype.removeViewId = function (id) {
+        var idx;
+        idx = this.getViewIndex(id);
+        if (idx !== -1) {
+            var view = this._viewitems[idx];
+            view.parent = view;
+            delete this._viewitems[idx];
+            return view;
+        }
+        return null;
+    };
+    ItmView.prototype.removeViews = function () {
+        while (this._viewitems.length > 0) {
+            var view = void 0;
+            view = this._viewitems[0];
+            this.removeViewId(view.id);
+        }
+    };
+    /**
+     * @param s - debugging string
+     * @return - returns string is debugging enabled
+     */
+    ItmView.prototype.drawDebug = function (s) {
+        var rs = '';
+        if (this.debug === true) {
+            var ds = void 0;
+            ds = "[{0}]".format(s);
+            rs += ds;
+        }
+        return rs;
+    };
+    /**
+     * draw begin of view
+     * @param s - draw string stream
+     * @return - returns begin string stream
+     */
+    ItmView.prototype.drawBegin = function () {
+        var s = '';
+        if (this.drawID) {
+            s += "<span id=\"{0}\">".format(this.id);
+        }
+        s += this.drawDebug('drawBegin');
+        return s;
+    };
+    /**
+     * draw end of view
+     * @param s - draw string stream
+     * @return - returns begin string stream
+     */
+    ItmView.prototype.drawEnd = function () {
+        var s = '';
+        s += this.drawDebug('drawEnd');
+        if (this.drawID) {
+            s += "</span>";
+        }
+        return s;
+    };
+    ItmView.prototype.drawViewItemsBegin = function () {
+        var s = '';
+        return s;
+    };
+    ItmView.prototype.drawViewItemsEnd = function () {
+        var s = '';
+        return s;
+    };
+    ItmView.prototype.drawViewItems = function () {
+        var s = '';
+        var thisView = this;
+        s += this.drawDebug('drawViewItems');
+        s += this.drawViewItemsBegin();
+        this._viewitems.forEach(function (view) {
+            s += thisView.drawDebug('drawChild id=[{0}]'.format(view.id));
+            s += view.draw();
+        });
+        s += this.drawViewItemsEnd();
+        return s;
+    };
+    /**
+     * draw main body of view
+     * @param s - draw string stream
+     * @return - returns begin string stream
+     */
+    ItmView.prototype.drawBody = function () {
+        var s = '';
+        s += this.drawDebug('drawBody');
+        s += this.drawViewItems();
+        return s;
+    };
+    /**
+     * draw entire view
+     * @param s - draw string stream
+     * @return - returns begin string stream
+     */
+    ItmView.prototype.draw = function () {
+        var s = '';
+        s += this.drawBegin();
+        s += this.drawBody();
+        s += this.drawEnd();
+        return s;
+    };
+    /**
+     * setup All Event Handlers for current and all child views, this function triggered after redraw to DOM
+     *
+     */
+    ItmView.prototype.setupEventHandlers = function () {
+        this.setupEventHandler();
+        this._viewitems.forEach(function (view) {
+            view.setupEventHandlers();
+        });
+    };
+    /**
+     * setup Event Handler for current view, this function triggered after redraw to DOM
+     *
+     */
+    ItmView.prototype.setupEventHandler = function () {
+        // initial do nothing
+    };
+    /**
+     * rebuild view, after this redraw may happen
+     * @return - true/false if redraw is needed
+     */
+    ItmView.prototype.rebuild = function () {
+        // do nothing
+        return true;
+    };
+    /**
+     * redraw entire view, rebuild view before redrawing
+     */
+    ItmView.prototype.redraw = function () {
+        if (this.rebuild()) {
+            if (this.element) {
+                this.element.outerHTML = this.draw();
+            }
+        }
+    };
+    ItmView.prototype.autoRefresh = function () {
+        this.redraw();
+    };
+    return ItmView;
+}());
 ///<reference path='./itmobject.ts'/>
 var TestItmObject = /** @class */ (function (_super) {
     __extends(TestItmObject, _super);

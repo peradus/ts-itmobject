@@ -5,22 +5,7 @@ interface HTMLElement {
    view:ItmView;
 }
 
-class DOM  {
-   protected DOM_obj : Window;
-   /** construct an ItmView   
-    */
-   get dom():Window {
-      return this.DOM_obj;
-   }
-
-   constructor () {
-      this.DOM_obj = document.defaultView;
-   }
-}
-
-var dom=new DOM();
-
-class ItmViewDOM  {
+class ItmView  {
    protected _debug:boolean=false;
    protected _drawID:boolean=true;
 
@@ -40,8 +25,15 @@ class ItmViewDOM  {
       this._debug=enable;
    }
 
-   get element():HTMLElement | null {
-      return document.getElementById(this._id);
+   get element():HTMLDivElement {
+      var el:HTMLDivElement;
+      el=<HTMLDivElement>document.getElementById(this._id);
+      if (!el) {
+         el=<HTMLDivElement>document.createElement('div');
+         el.id=this.id
+         el.view=this;
+      }
+      return el;
    }
 
    get drawID():boolean    {
