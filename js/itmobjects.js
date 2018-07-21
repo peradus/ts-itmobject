@@ -698,99 +698,49 @@ if (!String.prototype.format) {
         });
     };
 }
+function uniqueID(addText) {
+    if (addText === void 0) { addText = ''; }
+    return Date.now().toString(36) + Math.random().toString(36);
+}
 ///<reference path='./itmobject.ts'/>
 ///<reference path='./itmhelperfunctions.ts'/>
-var DOM = /** @class */ (function () {
-    function DOM() {
-        this.DOM_obj = document.defaultView;
-    }
-    Object.defineProperty(DOM.prototype, "dom", {
-        /** construct an ItmView
-         */
-        get: function () {
-            return this.DOM_obj;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return DOM;
-}());
-var dom = new DOM();
-var ItmViewDOM = /** @class */ (function () {
+// https://stackoverflow.com/questions/14742194/declaring-an-htmlelement-typescript
+var ItmView = /** @class */ (function () {
     /** construct an ItmView
-     */
-    function ItmViewDOM(id) {
-        if (id === void 0) { id = ""; }
-        this._debug = false;
-        this._drawID = true;
+        */
+    function ItmView() {
         this._id = "";
-        this._viewitems = [];
+        this._visible = false;
+        this._parentid = "";
         this._timerToken = 0;
         this._autoRefreshInterval = 0;
-        if (id == "") {
-            this._id = this.uniqueID();
-        }
-        else {
-            this._id = id;
-        }
-        this._parent = this;
-        this._viewitems = [];
+        this._id = uniqueID();
+        this._parentid = "";
+        this._timerToken = 0;
+        this._autoRefreshInterval = 0;
+        console.log('view {0} constructed'.format(this._id));
     }
-    Object.defineProperty(ItmViewDOM.prototype, "debug", {
+    Object.defineProperty(ItmView.prototype, "element", {
         get: function () {
-            return this._debug;
-        },
-        set: function (enable) {
-            this._debug = enable;
+            var el;
+            el = document.getElementById(this._id);
+            if (!el) {
+                console.log('element not exist, creating element');
+                el = document.createElement('div');
+                el.id = this._id;
+                el.view = this;
+                if (this._parentid == "") {
+                    document.body.appendChild(el);
+                }
+            }
+            console.log('element=');
+            console.dir(el);
+            return el;
         },
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(ItmViewDOM.prototype, "element", {
-        get: function () {
-            return document.getElementById(this._id);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(ItmViewDOM.prototype, "drawID", {
-        get: function () {
-            return this._drawID;
-        },
-        set: function (enable) {
-            this._drawID = enable;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(ItmViewDOM.prototype, "id", {
-        get: function () {
-            return this._id;
-        },
-        set: function (newid) {
-            this._id = newid;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(ItmViewDOM.prototype, "parent", {
-        get: function () {
-            return this._parent;
-        },
-        set: function (p) {
-            this._parent = p;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(ItmViewDOM.prototype, "viewItems", {
-        get: function () {
-            return this._viewitems;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(ItmViewDOM.prototype, "autoRefreshMs", {
+    Object.defineProperty(ItmView.prototype, "autoRefreshMs", {
         set: function (intervalMs) {
             var _this = this;
             this._autoRefreshInterval = intervalMs;
@@ -798,173 +748,24 @@ var ItmViewDOM = /** @class */ (function () {
                 clearTimeout(this._timerToken);
             }
             else {
-                this._timerToken = setInterval(function () { return _this.autoRefresh(); }, intervalMs);
+                this._timerToken = setInterval(function () { return _this.refresh(); }, intervalMs);
             }
         },
         enumerable: true,
         configurable: true
     });
-    /**
-     * Generate Unique ID
-     * @param addText - add additional text to unique id
-     * @return uniqueID - like 'jgl9tsrq0.jttxkhan9s8'
-     */
-    ItmViewDOM.prototype.uniqueID = function (addText) {
-        if (addText === void 0) { addText = ''; }
-        return Date.now().toString(36) + Math.random().toString(36);
-    };
-    ItmViewDOM.prototype.addView = function (view) {
-        view.parent = this;
-        this._viewitems.push(view);
-        return view;
-    };
-    ItmViewDOM.prototype.getViewIndex = function (id) {
-        for (var i = 0; i++; i < this._viewitems.length) {
-            var view = this._viewitems[i];
-            if (view.id == id)
-                return i;
-        }
-        return -1;
-    };
-    ItmViewDOM.prototype.removeViewId = function (id) {
-        var idx;
-        idx = this.getViewIndex(id);
-        if (idx !== -1) {
-            var view = this._viewitems[idx];
-            view.parent = view;
-            delete this._viewitems[idx];
-            return view;
-        }
-        return null;
-    };
-    ItmViewDOM.prototype.removeViews = function () {
-        while (this._viewitems.length > 0) {
-            var view = void 0;
-            view = this._viewitems[0];
-            this.removeViewId(view.id);
-        }
-    };
-    /**
-     * @param s - debugging string
-     * @return - returns string is debugging enabled
-     */
-    ItmViewDOM.prototype.drawDebug = function (s) {
-        var rs = '';
-        if (this.debug === true) {
-            var ds = void 0;
-            ds = "[{0}]".format(s);
-            rs += ds;
-        }
-        return rs;
-    };
-    /**
-     * draw begin of view
-     * @param s - draw string stream
-     * @return - returns begin string stream
-     */
-    ItmViewDOM.prototype.drawBegin = function () {
-        var s = '';
-        if (this.drawID) {
-            s += "<span id=\"{0}\">".format(this.id);
-        }
-        s += this.drawDebug('drawBegin');
-        return s;
-    };
-    /**
-     * draw end of view
-     * @param s - draw string stream
-     * @return - returns begin string stream
-     */
-    ItmViewDOM.prototype.drawEnd = function () {
-        var s = '';
-        s += this.drawDebug('drawEnd');
-        if (this.drawID) {
-            s += "</span>";
-        }
-        return s;
-    };
-    ItmViewDOM.prototype.drawViewItemsBegin = function () {
-        var s = '';
-        return s;
-    };
-    ItmViewDOM.prototype.drawViewItemsEnd = function () {
-        var s = '';
-        return s;
-    };
-    ItmViewDOM.prototype.drawViewItems = function () {
-        var s = '';
-        var thisView = this;
-        s += this.drawDebug('drawViewItems');
-        s += this.drawViewItemsBegin();
-        this._viewitems.forEach(function (view) {
-            s += thisView.drawDebug('drawChild id=[{0}]'.format(view.id));
-            s += view.draw();
-        });
-        s += this.drawViewItemsEnd();
-        return s;
-    };
-    /**
-     * draw main body of view
-     * @param s - draw string stream
-     * @return - returns begin string stream
-     */
-    ItmViewDOM.prototype.drawBody = function () {
-        var s = '';
-        s += this.drawDebug('drawBody');
-        s += this.drawViewItems();
-        return s;
-    };
-    /**
-     * draw entire view
-     * @param s - draw string stream
-     * @return - returns begin string stream
-     */
-    ItmViewDOM.prototype.draw = function () {
-        var s = '';
-        s += this.drawBegin();
-        s += this.drawBody();
-        s += this.drawEnd();
-        return s;
-    };
-    /**
-     * setup All Event Handlers for current and all child views, this function triggered after redraw to DOM
-     *
-     */
-    ItmViewDOM.prototype.setupEventHandlers = function () {
-        this.setupEventHandler();
-        this._viewitems.forEach(function (view) {
-            view.setupEventHandlers();
-        });
-    };
-    /**
-     * setup Event Handler for current view, this function triggered after redraw to DOM
-     *
-     */
-    ItmViewDOM.prototype.setupEventHandler = function () {
-        // initial do nothing
-    };
-    /**
-     * rebuild view, after this redraw may happen
-     * @return - true/false if redraw is needed
-     */
-    ItmViewDOM.prototype.rebuild = function () {
-        // do nothing
-        return true;
-    };
-    /**
-     * redraw entire view, rebuild view before redrawing
-     */
-    ItmViewDOM.prototype.redraw = function () {
-        if (this.rebuild()) {
-            if (this.element) {
-                this.element.outerHTML = this.draw();
-            }
-        }
-    };
-    ItmViewDOM.prototype.autoRefresh = function () {
+    ItmView.prototype.refresh = function () {
         this.redraw();
     };
-    return ItmViewDOM;
+    ItmView.prototype.redraw = function () {
+        this.element.innerHTML = this.draw();
+    };
+    ItmView.prototype.draw = function () {
+        var s = "";
+        s += "<b>Hello world!, the current time is {0}</b>".format(new Date().toLocaleString());
+        return s;
+    };
+    return ItmView;
 }());
 ///<reference path='./itmview.ts'/>
 // https://stackoverflow.com/questions/14742194/declaring-an-htmlelement-typescript
@@ -1121,73 +922,17 @@ obj.methods.set(method);
 var method2 = new ItmObjectMethod('start');
 method2.parameters.set(prop1);
 obj.methods.set(method2);
-///<reference path='./itmview.ts'/>
-///<reference path='./itmviewbreadcrumbs.ts'/>
-// https://stackoverflow.com/questions/14742194/declaring-an-htmlelement-typescript
-var ItmViewItmObjectSelector = /** @class */ (function (_super) {
-    __extends(ItmViewItmObjectSelector, _super);
-    function ItmViewItmObjectSelector() {
-        var _this = _super.call(this) || this;
-        /** construct an ItmView from an ItmObject
-         */
-        _this._selectedItmObject = "";
-        return _this;
-    }
-    Object.defineProperty(ItmViewItmObjectSelector.prototype, "selectedItmObject", {
-        get: function () {
-            return this._selectedItmObject;
-        },
-        /**
-         * select ITMObject and update breadcrumbs
-         * @param itmobject:string = '/a/b/c/d/e';
-         */
-        set: function (itmobject) {
-            this._selectedItmObject = itmobject;
-            // update breadcrumbs
-            var crumbs = [];
-            if (itmobject != "") {
-                crumbs = itmobject.split('/');
-            }
-            this.setBreadCrumbs(crumbs);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return ItmViewItmObjectSelector;
-}(ItmViewBreadCrumbs));
-///<reference path='./itmview.ts'/>
-///<reference path='./itmviewitmobjectselector.ts'/>
-///<reference path='./itmviewtestautorefresh.ts'/>
-// https://stackoverflow.com/questions/14742194/declaring-an-htmlelement-typescript
-var ItmViewMain = /** @class */ (function (_super) {
-    __extends(ItmViewMain, _super);
-    /** construct main Itmclient ItmView
-     */
-    function ItmViewMain() {
-        var _this = _super.call(this, "main") || this;
-        _this._itmObjectSelector = new ItmViewItmObjectSelector();
-        _this._clock = new ItmViewTestAutoRefresh();
-        _this.addView(_this._itmObjectSelector);
-        _this.addView(_this._clock);
-        return _this;
-    }
-    Object.defineProperty(ItmViewMain.prototype, "itmObjectSelector", {
-        get: function () {
-            return this._itmObjectSelector;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return ItmViewMain;
-}(ItmView));
-///<reference path='./class/itmviewmain.ts'/>
+///<reference path='./class/itmview.ts'/>
 /* ITMVIEW
  */
-var main = new ItmViewMain();
+//var main:ItmViewMain = new ItmViewMain();
+var view = new ItmView();
+view.redraw();
 // INIT CODE AFTER DOCUMENT LOAD
 window.onload = function () {
-    main.itmObjectSelector.selectedItmObject = "a/b/c/d/e/f";
-    main.redraw();
+    //   main.itmObjectSelector.selectedItmObject="a/b/c/d/e/f";
+    //   main.redraw();
+    view.autoRefreshMs = 1000;
 };
 ///<reference path='./itmobject.ts'/>
 ///<reference path='./itmhelperfunctions.ts'/>
@@ -1302,8 +1047,8 @@ var ItmView = /** @class */ (function () {
     };
     ItmView.prototype.getViewIndex = function (id) {
         for (var i = 0; i++; i < this._viewitems.length) {
-            var view = this._viewitems[i];
-            if (view.id == id)
+            var view_1 = this._viewitems[i];
+            if (view_1.id == id)
                 return i;
         }
         return -1;
@@ -1312,18 +1057,18 @@ var ItmView = /** @class */ (function () {
         var idx;
         idx = this.getViewIndex(id);
         if (idx !== -1) {
-            var view = this._viewitems[idx];
-            view.parent = view;
+            var view_2 = this._viewitems[idx];
+            view_2.parent = view_2;
             delete this._viewitems[idx];
-            return view;
+            return view_2;
         }
         return null;
     };
     ItmView.prototype.removeViews = function () {
         while (this._viewitems.length > 0) {
-            var view = void 0;
-            view = this._viewitems[0];
-            this.removeViewId(view.id);
+            var view_3 = void 0;
+            view_3 = this._viewitems[0];
+            this.removeViewId(view_3.id);
         }
     };
     /**
@@ -1448,6 +1193,65 @@ var ItmView = /** @class */ (function () {
     };
     return ItmView;
 }());
+///<reference path='./itmview.ts'/>
+///<reference path='./itmviewbreadcrumbs.ts'/>
+// https://stackoverflow.com/questions/14742194/declaring-an-htmlelement-typescript
+var ItmViewItmObjectSelector = /** @class */ (function (_super) {
+    __extends(ItmViewItmObjectSelector, _super);
+    function ItmViewItmObjectSelector() {
+        var _this = _super.call(this) || this;
+        /** construct an ItmView from an ItmObject
+         */
+        _this._selectedItmObject = "";
+        return _this;
+    }
+    Object.defineProperty(ItmViewItmObjectSelector.prototype, "selectedItmObject", {
+        get: function () {
+            return this._selectedItmObject;
+        },
+        /**
+         * select ITMObject and update breadcrumbs
+         * @param itmobject:string = '/a/b/c/d/e';
+         */
+        set: function (itmobject) {
+            this._selectedItmObject = itmobject;
+            // update breadcrumbs
+            var crumbs = [];
+            if (itmobject != "") {
+                crumbs = itmobject.split('/');
+            }
+            this.setBreadCrumbs(crumbs);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return ItmViewItmObjectSelector;
+}(ItmViewBreadCrumbs));
+///<reference path='./itmview.ts'/>
+///<reference path='./itmviewitmobjectselector.ts'/>
+///<reference path='./itmviewtestautorefresh.ts'/>
+// https://stackoverflow.com/questions/14742194/declaring-an-htmlelement-typescript
+var ItmViewMain = /** @class */ (function (_super) {
+    __extends(ItmViewMain, _super);
+    /** construct main Itmclient ItmView
+     */
+    function ItmViewMain() {
+        var _this = _super.call(this, "main") || this;
+        _this._itmObjectSelector = new ItmViewItmObjectSelector();
+        _this._clock = new ItmViewTestAutoRefresh();
+        _this.addView(_this._itmObjectSelector);
+        _this.addView(_this._clock);
+        return _this;
+    }
+    Object.defineProperty(ItmViewMain.prototype, "itmObjectSelector", {
+        get: function () {
+            return this._itmObjectSelector;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return ItmViewMain;
+}(ItmView));
 ///<reference path='./itmobject.ts'/>
 var TestItmObject = /** @class */ (function (_super) {
     __extends(TestItmObject, _super);

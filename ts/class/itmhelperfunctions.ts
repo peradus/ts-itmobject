@@ -80,4 +80,9 @@ if (!String.prototype.format) {
  };
 }
 
+function uniqueID(addText:string='') {
+   return Date.now().toString(36)+Math.random().toString(36);
+}
+
+
 
